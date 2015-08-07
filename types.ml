@@ -11,6 +11,7 @@ module CellSet = Set.Make(Cell)
 (* Directions *)
 type move = E | W | SW | SE
 type rot = CW | CCW
+type order = M of move | R of rot
 
 (* Unités *)
 module Pawn = struct
@@ -58,3 +59,15 @@ let fall (b:t) (n: int) : unit =
 end
 module B = Board
 type board = B.t
+
+
+module Config = struct 
+  type t = {
+    b: board
+  ;
+    p: pawn
+  }
+
+  let update (c: t) (
+
+end
