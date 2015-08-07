@@ -97,6 +97,7 @@ module Config = struct
 
  let proj (c: t) : board =
    let b = Board.clone c.b in
-   CellSet.iter (fun cell -> Board.set b cell true) c.p.Pawn.cells 
+   CellSet.iter (fun cell -> Board.set b cell true) c.p.Pawn.cells;
+   b
 
 end
