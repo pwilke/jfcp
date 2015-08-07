@@ -48,7 +48,27 @@ let json_to_dst ~minify
   | _ -> invalid_arg "invalid json text"
 
 let () =
-  json_of_src (`Channel stdin) |> function
-  | `Error _ -> Printf.eprintf "oops\n"
-  | `JSON j ->
-    json_to_dst ~minify:false (`Channel stdout) j
+  let filename : string list ref = ref [] in
+  let timelimit : float ref = ref 0.0 in (* seconds *)
+  let memolimit : float ref = ref 0.0 in (* mega-bytes *)
+  let phop : string ref = ref "" in (* phrase of power *)
+  Arg.(parse
+  [
+    "-f", String (fun s -> filename := s :: !filename),
+       "File containing JSON encoded input.";
+    "-t", Set_float timelimit, "Time limit, in seconds, to produce output";
+    "-m", Set_float memolimit, "Memory limit, in megabytes, to produce output";
+    "-p", Set_string phop, "Phrase of power, as quoted string";
+  ]
+  (ignore: string -> unit)
+  "rtfm"
+  );
+  List.iter (fun s ->
+    let fn = open_in s in
+    json_of_src (`Channel fn) |> function
+    | `Error _ -> Printf.eprintf "oops\n"
+    | `JSON j ->
+      json_to_dst ~minify:true (`Channel stdout) j
+    ;
+    close_in fn
+  ) (!filename)
