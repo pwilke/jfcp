@@ -1,4 +1,3 @@
-open Types (* sans eux nous serions perdus *)
 open Cell
 open Board
        
