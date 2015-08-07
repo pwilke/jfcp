@@ -34,12 +34,17 @@ module Config = struct
       | R r ->  Pawn.rot  c.p r
     in
     if (valid c.b np) then Some { b = c.b ; p = np } else None
-
-							    
+ 
   let score (b: board) (p: pawn): int =
     CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0
 							    
   let compute_sons (b: board) (p: pawn) : (order * pawn) list * order list =
+    let olds = 
+      (List.map (fun order ->
+		 (order, update { b; p } order)
+		)
+		[M E; M W; M SW; M SE; R CW ; R CCW])
+    in
     let rec f (pl: (order* t option) list) acc =
       let (acc1,acc2) = acc in
       match pl with
@@ -47,14 +52,10 @@ module Config = struct
       | (o, None)::r -> f r (acc1,o::acc2)
       | (o, Some p)::r -> f r ((o,p.p)::acc1,acc2)
     in
-    f (List.map (fun o ->
-		 (o,update { b = b; p = p } o)
-		)
-		[M E; M W; M SW; M SE; R CW ; R CCW]) ([],[])
-
+    f olds ([],[])
 
   let equiv (p: pawn) (q: pawn) : bool =
-    failwith "todo"
+    p.Pawn.pivot == q.Pawn.pivot && CellSet.equal p.Pawn.cells q.Pawn.cells
 	     
   let not_colored (colored: pawn list) (p: pawn) : bool =
     List.exists (equiv p) colored = false
