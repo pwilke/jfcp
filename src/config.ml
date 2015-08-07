@@ -35,9 +35,12 @@ module Config = struct
       | R r ->  Pawn.rot  c.p r
     in
     if (valid c.b np) then Some { b = c.b ; p = np } else None
- 
-  let score (b: board) (p: pawn): int =
-    CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0
+
+  type score_t = int * int
+							    
+  let score (b: board) (p: pawn): score_t =
+    (CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0,
+     CellSet.fold (fun c n -> min n c.y) p.Pawn.cells max_int)
 							    
   let compute_sons (b: board) (p: pawn) : (order * pawn) list * order list =
     let olds = 
@@ -63,7 +66,7 @@ module Config = struct
 	     
   let walk (c: t) : order list =
     let b = c.b in
-    let rec aux (cur: order list) (best: order list) (bestscore: int) (colored: pawn list) (pl: pawn list) : (order list * int * pawn list) =
+    let rec aux (cur: order list) (best: order list) (bestscore: score_t) (colored: pawn list) (pl: pawn list) : (order list * score_t * pawn list) =
       begin
 	match pl with
 	  [] -> (best,bestscore,colored)
@@ -92,7 +95,7 @@ module Config = struct
 	   aux cur ol sc col r
       end      
     in
-    let (best, bestscore, colored) = aux [] [] 0 [] [c.p] in
+    let (best, bestscore, colored) = aux [] [] (0,0) [] [c.p] in
     List.rev best
 
  let proj (c: t) : board =
