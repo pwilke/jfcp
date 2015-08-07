@@ -32,16 +32,16 @@ type input_t = {
   pawns: Pawn.t list;
   board: Board.t;
   length: int;
-  seed: int list;
+  seeds: int list;
 }
 
 (** formatting of an input *)
-let pp_input fmt { id ; height ; width ; board ; length ; seed ; pawns } =
-  Format.fprintf fmt "id: %d; w: %d; h: %d\n l: %d@\n%a%a"
+let pp_input fmt { id ; height ; width ; board ; length ; seeds ; pawns } =
+  Format.fprintf fmt "id: %d; w: %d; h: %d\nl: %d; s: %a@\n%a%a"
   id width height
-  length
+  length (pp_list pp_int ";") seeds
   (Board.format ~pivot:None) board
-  (pp_list Pawn.format) pawns
+  (pp_list Pawn.format "") pawns
 
 let parse json =
   let open Ezjsonm in
@@ -67,7 +67,7 @@ let parse json =
     height;
     board = Board.init height width filled;
     length = get_int (f ["sourceLength"]);
-    seed = get_list get_int (f ["sourceSeeds"]);
+    seeds = get_list get_int (f ["sourceSeeds"]);
     pawns;
   }
 
