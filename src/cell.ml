@@ -15,7 +15,7 @@ module Cube = struct
     type t = cube
     (* http://www.redblobgames.com/grids/hexagons/#conversions *)
     
-    let odd i = if i mod 2 == 0 then 1 else 0
+    let odd i = if i land 1 == 1 then 1 else 0
 
     let cube_of_cell (h: cell) : t =
       let xx = h.x - (h.y - (odd h.y)) / 2 in
