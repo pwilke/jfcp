@@ -9,6 +9,7 @@ type t = bool array array
 
 (** Return whether a cell is empty or not in a board **)
 let get (b: t) (c: cell) : bool =
+  if debug then Format.eprintf "get %a@\n" pp_cell c;
   b.(c.y).(c.x)
 
 (** Set the value of a cell in a board to v **)
