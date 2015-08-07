@@ -1,51 +1,60 @@
-exception Escape of ((int * int) * (int * int)) * Jsonm.error
+open Types (* sans eux nous serions perdus *)
 
-let json_of_src ?encoding 
-    (src : [`Channel of in_channel | `String of string])
-  =
-  let dec d = match Jsonm.decode d with 
-  | `Lexeme l -> l
-  | `Error e -> raise (Escape (Jsonm.decoded_range d, e))
-  | `End | `Await -> assert false
-  in
-  let rec value v k d = match v with 
-  | `Os -> obj [] k d  | `As -> arr [] k d
-  | `Null | `Bool _ | `String _ | `Float _ as v -> k v d 
-  | _ -> assert false
-  and arr vs k d = match dec d with 
-  | `Ae -> k (`A (List.rev vs)) d
-  | v -> value v (fun v -> arr (v :: vs) k) d
-  and obj ms k d = match dec d with 
-  | `Oe -> k (`O (List.rev ms)) d
-  | `Name n -> value (dec d) (fun v -> obj ((n, v) :: ms) k) d
-  | _ -> assert false
-  in
-  let d = Jsonm.decoder ?encoding src in
-  try `JSON (value (dec d) (fun v _ -> v) d) with 
-  | Escape (r, e) -> `Error (r, e)
+(*
+{ "id": number              /* A unique number identifying the problem */
 
-let json_to_dst ~minify 
-    (dst : [`Channel of out_channel | `Buffer of Buffer.t ]) 
-    (json : _)
-  =
-  let enc e l = ignore (Jsonm.encode e (`Lexeme l)) in
-  let rec value v k e = match v with 
-  | `A vs -> arr vs k e 
-  | `O ms -> obj ms k e 
-  | `Null | `Bool _ | `Float _ | `String _ as v -> enc e v; k e
-  and arr vs k e = enc e `As; arr_vs vs k e
-  and arr_vs vs k e = match vs with 
-  | v :: vs' -> value v (arr_vs vs' k) e 
-  | [] -> enc e `Ae; k e
-  and obj ms k e = enc e `Os; obj_ms ms k e
-  and obj_ms ms k e = match ms with 
-  | (n, v) :: ms -> enc e (`Name n); value v (obj_ms ms k) e
-  | [] -> enc e `Oe; k e
+, "units": [ Unit ]
+  /* The various unit configurations that may appear in this game.
+     There might be multiple entries for the same unit.
+     When a unit is spawned, it will start off in the orientation
+     specified in this field. */
+
+, "width":  number          /* The number of cells in a row */
+
+, "height": number          /* The number of rows on the board */
+
+, "filled": [ Cell ]        /* Which cells start filled */
+
+, "sourceLength": number    /* How many units in the source */
+
+, "sourceSeeds": [ number ] /* How to generate the source and
+                               how many games to play */
+}
+*)
+type input_t = {
+  id: int;
+  width: int;
+  height: int;
+  board: Board.t;
+  length: int;
+  seed: int;
+}
+
+(** formatting of an input *)
+let pp_input fmt { id ; height ; width ; board ; length ; seed } =
+  Format.fprintf fmt "id: %d; w: %d; h: %d\n l: %d; s: %d@\n%a"
+  id width height
+  length seed
+  Board.format board
+
+let parse json =
+  let open Ezjsonm in
+  let get_cell c =
+    let f k = get_int (find c k) in
+    { x = f ["x"]; y = f ["y"] }
   in
-  let e = Jsonm.encoder ~minify dst in
-  let finish e = ignore (Jsonm.encode e `End) in
-  match json with `A _ | `O _ as json -> value json finish e
-  | _ -> invalid_arg "invalid json text"
+  let f k = find json k in
+  let width = get_int (f ["width"]) in
+  let height = get_int (f ["height"]) in
+  let filled = f ["filled"] |> get_list get_cell in
+  {
+    id = get_int (f ["id"]);
+    width;
+    height;
+    board = Board.init height width filled;
+    length = get_int (f ["sourceLength"]);
+    seed = get_int (f ["sourceSeed"]);
+  }
 
 let () =
   let filename : string list ref = ref [] in
@@ -65,10 +74,9 @@ let () =
   );
   List.iter (fun s ->
     let fn = open_in s in
-    json_of_src (`Channel fn) |> function
-    | `Error _ -> Printf.eprintf "oops\n"
-    | `JSON j ->
-      json_to_dst ~minify:true (`Channel stdout) j
+    let json = Ezjsonm.from_channel fn in
+    let () = close_in fn in
+    let i = parse json in
+    Format.printf "%a@." pp_input i
     ;
-    close_in fn
   ) (!filename)

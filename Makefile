@@ -1,4 +1,4 @@
-OCB=ocamlbuild -use-ocamlfind
+OCB=ocamlbuild -use-ocamlfind -cflag -g
 all:
 	$(OCB) main.native
 
