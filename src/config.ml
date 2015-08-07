@@ -1,6 +1,7 @@
 open Board
 open Pawn
 open Cell
+open Orders
 
 type res_Move = Out_Of_Board | Occupied | Fine 
 
@@ -22,13 +23,22 @@ module Config = struct
     else Fine
 
 (** Check the validity of a candidate board **) 
-  let valid (c: t): bool =
-    CellSet.fold (fun cell b -> b && (valid_cell cell c.b) == Fine) c.p.Pawn.cells true 
+  let valid (b: board) (p: pawn): bool =
+    CellSet.fold (fun cell bool -> bool && (valid_cell cell b) == Fine) p.Pawn.cells true 
 
 (** Updates a configuration after an order **) 
-  let update (c: t) (o: order): t =
-    match o with 
-    | M m -> { b = c.b ; p = Pawn.move c.p m }
-    | R r -> { b = c.b ; p = Pawn.rot  c.p r }
-    
+  let update (c: t) (o: order): t option =
+    let np = 
+      match o with 
+      | M m ->  Pawn.move c.p m
+      | R r ->  Pawn.rot  c.p r
+    in
+    if (valid c.b np) then Some { b = c.b ; p = np } else None
+
+  let score (b: board) (p: pawn): int =
+    CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0 
+
+  let get_path (c: t) (p: pawn): (order list) option =
+    Some []
+ 
 end

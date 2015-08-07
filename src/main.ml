@@ -1,5 +1,6 @@
 open Cell
 open Board
+open Config
        
 (*
 { "id": number              /* A unique number identifying the problem */
