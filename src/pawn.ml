@@ -45,3 +45,8 @@ module Pawn = struct
 end
 module Uunit = Pawn
 type pawn = Pawn.t
+
+(* let _ = *)
+(*   Format.printf "%a@." Pawn.format (Pawn.move {cells = CellSet.empty; *)
+(* 					       pivot = { x = 0; y = 0 }} SE) *)
+	      

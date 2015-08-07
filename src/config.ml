@@ -1,3 +1,4 @@
+open Jfcp
 open Board
 open Pawn
 open Cell
@@ -55,7 +56,7 @@ module Config = struct
     f olds ([],[])
 
   let equiv (p: pawn) (q: pawn) : bool =
-    p.Pawn.pivot == q.Pawn.pivot && CellSet.equal p.Pawn.cells q.Pawn.cells
+    p.Pawn.pivot = q.Pawn.pivot && CellSet.equal p.Pawn.cells q.Pawn.cells
 	     
   let not_colored (colored: pawn list) (p: pawn) : bool =
     List.exists (equiv p) colored = false
@@ -67,6 +68,7 @@ module Config = struct
 	match pl with
 	  [] -> (best,bestscore,colored)
 	| p::r ->
+	   if debug then Format.printf "%a@\n%d." Pawn.format p (List.length colored);
 	   if not_colored colored p = false then aux cur best bestscore colored r
 	   else 
 	   let colored = p::colored in

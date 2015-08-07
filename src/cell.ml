@@ -74,6 +74,10 @@ module Cell = struct
 		    
 
   end
+
+(* let _ = *)
+(*   Format.printf "%a@." pp_cell (Cell.move { x = 0; y = 0 } W) *)
+		
 module CellSet = Set.Make(Cell)
 
 let cellset_map (f: Cell.t -> Cell.t) (s: CellSet.t) : CellSet.t =

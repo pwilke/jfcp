@@ -3,6 +3,7 @@ open Cell
 open Pawn
 open Board
 open Config
+open Orders
        
 (*
 { "id": number              /* A unique number identifying the problem */
@@ -71,6 +72,7 @@ let parse json =
     pawns;
   }
 
+    
 let () =
   let filename : string list ref = ref [] in
   let timelimit : float ref = ref 0.0 in (* seconds *)
@@ -94,4 +96,8 @@ let () =
     let i = parse json in
     Format.printf "%a@." pp_input i
     ;
+      Printf.printf
+	"%s\n"
+	(string_of_list_order (Config.walk { Config.b = i.board; Config.p = List.hd i.pawns }))
+      
   ) (!filename)
