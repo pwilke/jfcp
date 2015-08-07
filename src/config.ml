@@ -38,7 +38,9 @@ module Config = struct
   let score (b: board) (p: pawn): int =
     CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0 
 
+ (** Assuming a pawn which is a rotation of the one in the configuration, we compute if possible a path from the starting position to p **) 
   let get_path (c: t) (p: pawn): (order list) option =
+    
     Some []
  
 end
