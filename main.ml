@@ -1,5 +1,7 @@
 open Types (* sans eux nous serions perdus *)
-
+open Cell
+open Board
+       
 (*
 { "id": number              /* A unique number identifying the problem */
 
