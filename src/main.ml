@@ -78,6 +78,7 @@ let () =
   let timelimit : float ref = ref 0.0 in (* seconds *)
   let memolimit : float ref = ref 0.0 in (* mega-bytes *)
   let phop : string ref = ref "" in (* phrase of power *)
+  let simul : bool ref = ref false in
   Arg.(parse
   [
     "-f", String (fun s -> filename := s :: !filename),
@@ -85,6 +86,7 @@ let () =
     "-t", Set_float timelimit, "Time limit, in seconds, to produce output";
     "-m", Set_float memolimit, "Memory limit, in megabytes, to produce output";
     "-p", Set_string phop, "Phrase of power, as quoted string";
+    "-s", Set simul, "Stepwise";
   ]
   (ignore: string -> unit)
   "rtfm"
@@ -96,8 +98,7 @@ let () =
     let i = parse json in
     Format.printf "%a@." pp_input i
     ;
-      Printf.printf
-	"%s\n"
-	(string_of_list_order (Config.walk { Config.b = i.board; Config.p = List.hd i.pawns }))
-      
+    let init = { Config.b = i.board; Config.p = List.hd i.pawns } in
+    let path = Config.walk init in
+    if !simul then Simulation.doit init path
   ) (!filename)
