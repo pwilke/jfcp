@@ -170,10 +170,6 @@ module Pawn = struct
     let rot (p: t) (r: rot) : t = 
       map_t p (fun c -> Cell.rot c p.pivot r)
 
-    let move (p: t) (m: move) : t = p
-
-    let rot (p: t) (r: rot) : t = p
-
   (* Bounding box of a cell set *)
   (* returns (width, height) *)
   let cellset_bb (cells: CellSet.t) =
