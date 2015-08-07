@@ -10,9 +10,6 @@ type cell = {
 let pp_cell fmt { x ; y } =
   Format.fprintf fmt "{ %d; %d}" x y
 
-module Cell = struct type t = cell let compare = compare end
-module CellSet = Set.Make(Cell)
-
 (* Directions *)
 type move = E | W | SW | SE
 type rot = CW | CCW
@@ -100,31 +97,6 @@ let cellset_map (f: Cell.t -> Cell.t) (s: CellSet.t) : CellSet.t =
   CellSet.fold (fun elt acc -> CellSet.add (f elt) acc) s CellSet.empty
 			 
 
-(* Unités, both as an abstract piece as well as positionned over the board relatively to the pivot *)
-
-module Pawn = struct
-    type t = {
-	cells: CellSet.t
-      ;
-	pivot: cell
-      }
-
-    let map_t (p: t) (f: Cell.t -> Cell.t) : t =
-      {
-	cells = cellset_map f p.cells;
-	pivot = f p.pivot
-      }
-	       
-    let move (p: t) (m: move) : t =
-      map_t p (fun c -> Cell.move c m)
-
-    let rot (p: t) (r: rot) : t = 
-      map_t p (fun c -> Cell.rot c p.pivot r)
-	   
-end
-module Uunit = Pawn
-type pawn = Pawn.t
-
 (* platō *)
 (* ligne × colonne *)
 
@@ -163,12 +135,12 @@ let fall (b:t) (n: int) : unit =
   clean_line b 0
 
 (** formatted representation of a board *)
-let format fmt =
+let format ~pivot fmt =
   Array.iteri (fun row c ->
     (* trailing space on odd rows *)
     Format.fprintf fmt (if row land 1 = 1 then "|-" else "|");
     Array.iteri (fun col b ->
-      Format.fprintf fmt (if b then "⟨⟩" else "  ")
+      Format.fprintf fmt (if b then "⟨⟩" else if Some{ x = col; y = row } = pivot then "··" else "  ")
     )
     c;
     Format.fprintf fmt "|@\n"
@@ -177,6 +149,50 @@ let format fmt =
 end
 module B = Board
 type board = B.t
+
+(* Unités, both as an abstract piece as well as positionned over the board relatively to the pivot *)
+module Pawn = struct
+    type t = {
+	cells: CellSet.t
+      ;
+	pivot: cell
+      }
+
+    let map_t (p: t) (f: Cell.t -> Cell.t) : t =
+      {
+	cells = cellset_map f p.cells;
+	pivot = f p.pivot
+      }
+	       
+    let move (p: t) (m: move) : t =
+      map_t p (fun c -> Cell.move c m)
+
+    let rot (p: t) (r: rot) : t = 
+      map_t p (fun c -> Cell.rot c p.pivot r)
+
+    let move (p: t) (m: move) : t = p
+
+    let rot (p: t) (r: rot) : t = p
+
+  (* Bounding box of a cell set *)
+  (* returns (width, height) *)
+  let cellset_bb (cells: CellSet.t) =
+    CellSet.fold (fun c (w, h) ->
+      (max w c.x, max h c.y)
+    ) cells (0, 0)
+  (* Bounding box of a pawn (including its pivot) *)
+  let bb (p: t) =
+    cellset_bb (CellSet.add p.pivot p.cells)
+
+  let format fmt (p: t) =
+    let (w, h) = bb p in
+    let pivot = Some p.pivot in
+    let b = Board.init h w (CellSet.elements p.cells) in
+    Format.fprintf fmt "%a" (Board.format ~pivot) b
+   
+end
+module Uunit = Pawn
+type pawn = Pawn.t
 
 type res_Move = Out_Of_Board | Occupied | Fine 
 
@@ -198,7 +214,7 @@ module Config = struct
 
 (** Check the validity of a candidate board **) 
   let valid (c: t): bool =
-    CellSet.fold (fun cell b -> b && (valid_cell cell c.b) == Fine) c.p.cells true 
+    CellSet.fold (fun cell b -> b && (valid_cell cell c.b) == Fine) c.p.Pawn.cells true 
 
 (** Updates a configuration after an order **) 
   let update (c: t) (o: order): t =
