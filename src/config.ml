@@ -17,11 +17,11 @@ module Config = struct
 
 (** Check the validity of the position of a cell inside a board **)
   let valid_cell (c: cell) (b: board): res_Move =
-    let heigth = Array.length b in
-    let width =  Array.length b.(0) in
-    if (c.x < 0 || c.x >= heigth || c.y < 0 || c.y >= width) then Out_Of_Board
-    else if (Board.get b c) then Occupied 
-    else Fine
+    try
+      if (Board.get b c)
+      then Occupied 
+      else Fine
+    with _ -> Out_Of_Board
 
 (** Check the validity of a candidate board **) 
   let valid (b: board) (p: pawn): bool =
