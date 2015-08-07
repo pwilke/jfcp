@@ -24,6 +24,24 @@ let init (h: int) (w: int) (l: cell list) : t =
   List.iter (fun c -> set b c true) l;
   b
 
+(* Height of a board *)
+let height (b: t) : int =
+  Array.length b
+
+(* Width of a board *)
+let width (b: t) : int =
+  Array.length b.(0)
+
+(* Fresh copy of a board. You may freely modify your fresh copy. *)
+let clone (b: t) : t =
+  let h = height b in
+  let w = width b in
+  Array.init h (fun r ->
+    Array.init w (fun c ->
+      b.(r).(c)
+    )
+  )
+
 (** Copy the line n in b to the following one. Non-sensical for n = height - 1. **)
 let fall_step (b: t) (n: int) : unit =
   b.(n + 1) <- b.(n)
