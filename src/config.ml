@@ -112,4 +112,12 @@ module Config = struct
    let p = iter (fun p -> Pawn.move p E) t p in
    { b ; p }
 
+(** Compute the list of lines which are full inside a board. Could be optimized if needed by casting it over the configuration by projection and testing only for affected lines **)
+ let full_lines (b: board): int list =
+   snd (Array.fold_left 
+     (fun (n,acc) line -> 
+      let full = Array.fold_left (fun acc bool -> acc && bool) true b.(n) in  
+      if full then (n+1,n::acc) else (n+1, acc)) 
+     (0,[]) b)
+
 end
