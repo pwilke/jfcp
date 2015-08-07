@@ -1,3 +1,4 @@
+open Jfcp
 open Orders
 open Cell
 open Board
@@ -34,8 +35,11 @@ module Pawn = struct
 
   let format fmt (p: t) =
     let (w, h) = bb p in
+    let (w, h) = (w + 1, h + 1) in
     let pivot = Some p.pivot in
+    if debug then Printf.eprintf "Pawn.format: %d %d\n" w h;
     let b = Board.init h w (CellSet.elements p.cells) in
+    Format.fprintf fmt "|%s|@\n" (String.make (2 * w) '=');
     Format.fprintf fmt "%a" (Board.format ~pivot) b
    
 end

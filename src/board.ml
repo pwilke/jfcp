@@ -44,7 +44,13 @@ let format ~pivot fmt =
     (* trailing space on odd rows *)
     Format.fprintf fmt (if row land 1 = 1 then "|-" else "|");
     Array.iteri (fun col b ->
-      Format.fprintf fmt (if b then "⟨⟩" else if Some{ x = col; y = row } = pivot then "··" else "  ")
+      Format.fprintf fmt begin
+        match b, Some{ x = col; y = row } = pivot with
+        | true, true -> "<>"
+        | true, false -> "⟨⟩"
+        | false, true -> "··"
+        | false, false -> "  "
+        end
     )
     c;
     Format.fprintf fmt "|@\n"

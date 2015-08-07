@@ -78,3 +78,6 @@ module CellSet = Set.Make(Cell)
 
 let cellset_map (f: Cell.t -> Cell.t) (s: CellSet.t) : CellSet.t =
   CellSet.fold (fun elt acc -> CellSet.add (f elt) acc) s CellSet.empty
+
+let cellset_of_list : cell list -> CellSet.t =
+  List.fold_left (fun x y -> CellSet.add y x) CellSet.empty

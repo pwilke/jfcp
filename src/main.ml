@@ -1,4 +1,6 @@
+open Jfcp
 open Cell
+open Pawn
 open Board
 open Config
        
@@ -27,17 +29,19 @@ type input_t = {
   id: int;
   width: int;
   height: int;
+  pawns: Pawn.t list;
   board: Board.t;
   length: int;
-  seed: int list;
+  seeds: int list;
 }
 
 (** formatting of an input *)
-let pp_input fmt { id ; height ; width ; board ; length ; seed } =
-  Format.fprintf fmt "id: %d; w: %d; h: %d\n l: %d; s: <TODO>@\n%a"
+let pp_input fmt { id ; height ; width ; board ; length ; seeds ; pawns } =
+  Format.fprintf fmt "id: %d; w: %d; h: %d\nl: %d; s: %a@\n%a%a"
   id width height
-  length (*seed*)
+  length (pp_list pp_int ";") seeds
   (Board.format ~pivot:None) board
+  (pp_list Pawn.format "") pawns
 
 let parse json =
   let open Ezjsonm in
@@ -45,17 +49,26 @@ let parse json =
     let f k = get_int (find c k) in
     { x = f ["x"]; y = f ["y"] }
   in
+  let get_pawn p =
+    {
+      Pawn.cells = find p ["members"] |> get_list get_cell |> cellset_of_list
+      ;
+      Pawn.pivot = get_cell (find p ["pivot"])
+    }
+  in
   let f k = find json k in
   let width = get_int (f ["width"]) in
   let height = get_int (f ["height"]) in
   let filled = f ["filled"] |> get_list get_cell in
+  let pawns = f ["units"] |> get_list get_pawn in
   {
     id = get_int (f ["id"]);
     width;
     height;
     board = Board.init height width filled;
     length = get_int (f ["sourceLength"]);
-    seed = get_list get_int (f ["sourceSeeds"]);
+    seeds = get_list get_int (f ["sourceSeeds"]);
+    pawns;
   }
 
 let () =
