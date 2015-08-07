@@ -95,9 +95,4 @@ module Config = struct
     let (best, bestscore, colored) = aux [] [] 0 [] [c.p] in
     List.rev best
 
- (** Assuming a pawn which is a rotation of the one in the configuration, we compute if possible a path from the starting position to p **) 
-  let get_path (c: t) (p: pawn): (order list) option =
-    
-    Some []
- 
 end
