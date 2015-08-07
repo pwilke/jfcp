@@ -98,9 +98,18 @@ module Config = struct
     let (best, bestscore, colored) = aux [] [] (0,0) [] [c.p] in
     List.rev best
 
- let proj (c: t) : board =
+ let proj (c: t): board =
    let b = Board.clone c.b in
    CellSet.iter (fun cell -> Board.set b cell true) c.p.Pawn.cells;
    b
+
+ let init (c: t): t =
+   let (b, p) = (c.b, c.p) in
+   let length = Array.length b.(0) in
+   let (lm, rm) = CellSet.fold (fun cell (l,r) -> (min l cell.x, max r cell.x)) p.Pawn.cells (length, 0) in
+   let d = rm - lm in
+   let t = length / 2 - d / 2 - lm in
+   let p = iter (fun p -> Pawn.move p E) t p in
+   { b ; p }
 
 end
