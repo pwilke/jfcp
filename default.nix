@@ -7,7 +7,7 @@ stdenv.mkDerivation {
 
   buildInputs = with ocamlPackages_4_01_0; [
     ocaml findlib merlin
-    jsonm
+    ezjsonm
   ];
 
 }
