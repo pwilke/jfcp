@@ -26,9 +26,17 @@ module Cube = struct
 	x = c.x + (c.z - (odd c.z)) / 2 }
 
     let rot (c: t) (pivot: t) (r: rot) : t =
-      match r with
-	CW -> { x = - c.z; y = - c.x; z = - c.y }
-      | CCW -> { x = - c.y; y = - c.z; z = - c.x }
+      let c = { x = c.x - pivot.x;
+		y = c.y - pivot.y;
+		z = c.z - pivot.z }
+      in
+      let c' = match r with
+	  CW -> { x = - c.z; y = - c.x; z = - c.y }
+	| CCW -> { x = - c.y; y = - c.z; z = - c.x }
+      in
+      { x = c'.x + pivot.x;
+	y = c'.y + pivot.y;
+	z = c'.z + pivot.z } 
 
     let move (c:t) (m: move) : t =
       match m with
@@ -36,35 +44,44 @@ module Cube = struct
       | W -> { x = c.x - 1 ; y = c.y + 1 ; z = c.z }
       | SE -> { x = c.x ; y = c.y - 1 ; z = c.z + 1 }
       | SW -> { x = c.x -1 ; y = c.y ; z = c.z + 1 }
+
+    let string_of_cube (c: t) : string =
+      Printf.sprintf "[%d,%d,%d]" c.x c.y c.z
+		
   end
 
-
-		
-
-		  
 module Cell = struct
     type t = cell
     let compare = compare
 
     let move (cell: t) (m: move) =
       Cube.cell_of_cube (Cube.move (Cube.cube_of_cell cell) m)
-      (* match m with *)
-      (* | E -> { x = cell.x + 1; y = cell.y } *)
-      (* | W -> { x = cell.x - 1; y = cell.y } *)
-      (* | SE -> { x = if cell.y mod 2 == 0 then cell.x else cell.x + 1; *)
-      (* 		y = cell.y + 1 } *)
-      (* | SW -> { x = if cell.y mod 2 == 0 then cell.x - 1 else cell.x; *)
-      (* 		y = cell.y + 1 } *)
 
     let rot (cell: t) (pivot : t) (r: rot) =
       Cube.cell_of_cube (Cube.rot
 			   (Cube.cube_of_cell cell)
 			   (Cube.cube_of_cell pivot) r)
+
+    let string_of_cell (c: t) : string =
+      Printf.sprintf "[%d,%d]" c.x c.y
 		    
   end
 module CellSet = Set.Make(Cell)
 
+(* let _ = *)
+(*   let pivot = {x = 2; y = 4} in *)
+(*   let c = { x = 3; y = 2} in *)
+(*   Printf.printf "rotating %s around %s CW = %s\n" *)
+(* 		(Cell.string_of_cell c) *)
+(* 		(Cell.string_of_cell pivot) *)
+(* 		(Cell.string_of_cell *)
+(* 		   (Cell.rot c pivot CW)) *)
 
+			 
+
+let cellset_map (f: Cell.t -> Cell.t) (s: CellSet.t) : CellSet.t =
+  CellSet.fold (fun elt acc -> CellSet.add (f elt) acc) s CellSet.empty
+			 
 (* Unités *)
 module Pawn = struct
     type t = {
@@ -72,10 +89,18 @@ module Pawn = struct
       ;
 	pivot: cell
       }
-	       
-    let move (p: t) (m: move) : t = p
 
-    let rot (p: t) (r: rot) : t = p
+    let map_t (p: t) (f: Cell.t -> Cell.t) : t =
+      {
+	cells = cellset_map f p.cells;
+	pivot = f p.pivot
+      }
+	       
+    let move (p: t) (m: move) : t =
+      map_t p (fun c -> Cell.move c m)
+
+    let rot (p: t) (r: rot) : t = 
+      map_t p (fun c -> Cell.rot c p.pivot r)
 	   
 end
 module Uunit = Pawn
