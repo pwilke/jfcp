@@ -1,3 +1,5 @@
+open Jfcp
+
 (* Cellule *)
 type cell = {
   x: int
@@ -5,18 +7,25 @@ type cell = {
   y: int
 }
 
-let odd i = if i mod 2 == 0 then 1 else 0
+let pp_cell fmt { x ; y } =
+  Format.fprintf fmt "{ %d; %d}" x y
+
+module Cell = struct type t = cell let compare = compare end
+module CellSet = Set.Make(Cell)
 
 (* Directions *)
 type move = E | W | SW | SE
 type rot = CW | CCW
 type order = M of move | R of rot
-					  
+
+
 type cube = { x: int; y: int; z: int}
 module Cube = struct
     type t = cube
     (* http://www.redblobgames.com/grids/hexagons/#conversions *)
     
+    let odd i = if i mod 2 == 0 then 1 else 0
+
     let cube_of_cell (h: cell) : t =
       let xx = h.x - (h.y - (odd h.y)) / 2 in
       let zz = h.y in
@@ -58,7 +67,7 @@ module Cell = struct
       Cube.cell_of_cube (Cube.rot
 			   (Cube.cube_of_cell cell)
 			   (Cube.cube_of_cell pivot) r)
-		    
+  
   end
 module CellSet = Set.Make(Cell)
 
@@ -91,10 +100,11 @@ let get (b: t) (c: cell) : bool =
 
 (** Set the value of a cell in a board to v **)
 let set (b: t) (c: cell) (v: bool) : unit =
+  if debug then Format.eprintf "set %a@\n" pp_cell c;
   b.(c.y).(c.x) <- v
 
 (** Initialize a board given its dimensions and a list of cells **)
-let init (l: cell list) (h: int) (w: int) : t =
+let init (h: int) (w: int) (l: cell list) : t =
   let b = Array.init h (fun _ -> Array.make w false) 
   in  
   List.iter (fun c -> set b c true) l;
@@ -114,7 +124,19 @@ let fall (b:t) (n: int) : unit =
     fall_step b k
   done; 
   clean_line b 0
- 
+
+(** formatted representation of a board *)
+let format fmt =
+  Array.iteri (fun row c ->
+    (* trailing space on odd rows *)
+    Format.fprintf fmt (if row land 1 = 1 then "|-" else "|");
+    Array.iteri (fun col b ->
+      Format.fprintf fmt (if b then "⟨⟩" else "  ")
+    )
+    c;
+    Format.fprintf fmt "|@\n"
+  )
+
 end
 module B = Board
 type board = B.t
