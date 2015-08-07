@@ -95,4 +95,8 @@ module Config = struct
     let (best, bestscore, colored) = aux [] [] 0 [] [c.p] in
     List.rev best
 
+ let proj (c: t) : board =
+   let b = Board.clone c.b in
+   CellSet.iter (fun cell -> Board.set b cell true) c.p.Pawn.cells 
+
 end
