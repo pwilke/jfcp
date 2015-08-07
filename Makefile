@@ -4,3 +4,6 @@ all:
 
 pwilke:
 	$(OCB) types.native
+
+clean:
+	rm -rf _build
