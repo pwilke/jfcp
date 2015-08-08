@@ -118,7 +118,7 @@ let round rnd pawns (board, finished, curpath) =
     end
 
 (** This function computes the series of commands for a whole game: iterates rounds over the list of available pawns **)
-let play_seed oc (i: input_t) () seed =
+let play_seed jas (i: input_t) seed =
 	let rnd = Prng.make seed in
 	let board = Board.clone i.board in
 	let (end_board, _, chemin) =
@@ -133,13 +133,15 @@ let play_seed oc (i: input_t) () seed =
 	   tag = "";
 	   solution = chemin }
 	in Format.printf "%a@." pp_output out;
-	   Ezjsonm.to_channel oc (to_jason out)
+	   match jas with 
+	   | ` A j -> `A ((to_jason out)::j)
+	   | _     -> failwith "not jas" 
 
 		     
 (** This function plays a full game over a board per seed provided in s **)
-let play_game oc i =  
-     List.fold_left (play_seed oc i) 
-        () i.seeds
+let play_game i =  
+     List.fold_left (fun jas s -> play_seed jas i s) 
+        (`A []) i.seeds
 
 let () =
   let filename : string list ref = ref [] in
@@ -167,8 +169,9 @@ let () =
       let () = close_in fn in
       let i = parse json in
       Format.printf "%a@." pp_input i;
+      let jas = play_game i in
       let oc = open_out_bin ("out/" ^ (string_of_int i.id)) in 
-      play_game oc i;
+      Ezjsonm.to_channel oc jas;
       close_out oc)
 
      (!filename)
