@@ -1,11 +1,3 @@
-# Zak
-
-board -> pawn -> float
-
-# PWI
-
-pawn + cell -> move -> kariboo
-
-# zyd
-
-cairo
+ -  Is a line full?
+ -  Groumph?
+ -  Output format
