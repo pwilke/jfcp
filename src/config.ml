@@ -27,6 +27,9 @@ module Config = struct
   let valid (b: board) (p: pawn): bool =
     CellSet.fold (fun cell bool -> bool && (valid_cell cell b) == Fine) p.Pawn.cells true 
 
+  let valid_config (c: t) : bool =
+    valid c.b c.p
+		 
 (** Updates a configuration after an order **) 
   let update (c: t) (o: order): t option =
     let np = 
@@ -109,7 +112,9 @@ module Config = struct
    let (lm, rm) = CellSet.fold (fun cell (l,r) -> (min l cell.x, max r cell.x)) p.Pawn.cells (length, 0) in
    let d = rm - lm in
    let t = length / 2 - d / 2 - lm in
-   let p = iter t (fun p -> Pawn.move p E) p in
+   let p = if t > 0
+	   then iter t (fun p -> Pawn.move p E) p
+	   else iter (-t) (fun p -> Pawn.move p W) p in
    { b ; p }
 
 (** Compute the list of lines which are full inside a board. Could be optimized if needed by casting it over the configuration by projection and testing only for affected lines **)

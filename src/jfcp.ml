@@ -2,6 +2,8 @@
 
 let debug = false
 
+let verbose : bool ref = ref false
+
 (* formatting ints *)
 let pp_int fmt = Format.fprintf fmt "%d"
 

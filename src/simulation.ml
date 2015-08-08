@@ -1,3 +1,4 @@
+open Jfcp
 open Config
 open Board
 open Orders
@@ -20,13 +21,16 @@ let of_option (def: 'b) (x: 'a option) : ('a, 'b) either =
   end
 
 let doigt : (Config.t, Config.t) either -> order list -> (Config.t, Config.t) either =
-  List.fold_left (fun cfg order ->
-    ebind cfg (fun cfg ->
-    Format.printf "%a\n%s@."
-    (Board.format ~pivot:(Some cfg.Config.p.Pawn.pivot)) (Config.proj cfg)
-    (string_of_order order)
-    ;
-    of_option cfg (Config.update cfg order)
+  List.fold_left
+    (fun cfg order ->
+     ebind cfg (fun cfg ->
+		if ! verbose 
+		then Format.printf
+		       "%a\n%s@."
+		       (Board.format ~pivot:(Some cfg.Config.p.Pawn.pivot))
+		       (Config.proj cfg)
+		       (string_of_order order);
+		of_option cfg (Config.update cfg order)
     )
   )
 
