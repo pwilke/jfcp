@@ -110,8 +110,13 @@ let round rnd pawns (board, finished, curpath) =
       if Config.valid_config init then
 	begin
 	  let path = Config.walk init in
-	  let eb = Simulation.doit init path in
-	  Board.clean_end_of_round eb;
+    let eb =
+	  begin match Simulation.doit init path with
+    | Left (eb, []) -> Board.clean_end_of_round eb; eb
+    | Left (eb, morepath) -> failwith "round: trailing orders at the end of path"
+    | Right(cfg) -> failwith "round: path does not lead to a locked configuration"
+    end
+    in
 	  eb , false , curpath @ path
 	end
       else (board,true,curpath)
