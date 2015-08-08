@@ -41,7 +41,12 @@ module Pawn = struct
     let b = Board.init h w (CellSet.elements p.cells) in
     Format.fprintf fmt "|%s|@\n" (String.make (2 * w) '=');
     Format.fprintf fmt "%a" (Board.format ~pivot) b
-   
+
+  let format_intrep fmt (p: t) =
+    Format.fprintf fmt "p[%a]{%a}@."
+		   pp_cell p.pivot
+		   (pp_list pp_cell ",") (CellSet.elements p.cells)
+		   
 end
 module Uunit = Pawn
 type pawn = Pawn.t

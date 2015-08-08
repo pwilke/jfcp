@@ -106,10 +106,20 @@ let round rnd pawns (board, finished, curpath) =
   if finished then (board,finished, curpath)
   else begin
       let pawn = Prng.take rnd |> pawns in
-      let init = Config.init { Config.b = board; Config.p = pawn } in
+      let preinit = { Config.b = board; Config.p = pawn } in
+      let init = Config.init preinit in
       if Config.valid_config init then
 	begin
+	  let preb = Config.proj preinit in
+	  let b = Config.proj init in
+	  
+	  Printf.printf ">>>>>New round!<<<<<<<\n";
+	  Format.printf "%a@." (Board.format ~pivot:(Some preinit.Config.p.Pawn.pivot)) preb;
+	  Format.printf "%a@." Pawn.format_intrep pawn;
+	  Format.printf "%a@." Pawn.format pawn;
+	  Format.printf "%a@." (Board.format ~pivot:(Some init.Config.p.Pawn.pivot)) b;
 	  let path = Config.walk init in
+	  Printf.printf "Path = %s\n" (string_of_list_order path);
 	  let eb = Simulation.doit init path in
 	  Board.clean_end_of_round eb;
 	  eb , false , curpath @ path
