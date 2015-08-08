@@ -30,19 +30,23 @@ type input_t = {
   id: int;
   width: int;
   height: int;
-  pawns: Pawn.t list;
+  size: int;
+  pawns: int -> Pawn.t;
   board: Board.t;
   length: int;
   seeds: int list;
 }
 
 (** formatting of an input *)
-let pp_input fmt { id ; height ; width ; board ; length ; seeds ; pawns } =
-  Format.fprintf fmt "id: %d; w: %d; h: %d\nl: %d; s: %a@\n%a%a"
+let pp_input fmt { id ; height ; width ; board ; length ; seeds ; size ; pawns } =
+  Format.fprintf fmt "id: %d; w: %d; h: %d\nl: %d; s: %a@\n%a"
   id width height
   length (pp_list pp_int ";") seeds
   (Board.format ~pivot:None) board
-  (pp_list Pawn.format "") pawns
+  ;
+  for i = 0 to size - 1 do
+    Format.fprintf fmt "%a" Pawn.format (pawns i)
+  done
 
 let parse json =
   let open Ezjsonm in
@@ -61,7 +65,9 @@ let parse json =
   let width = get_int (f ["width"]) in
   let height = get_int (f ["height"]) in
   let filled = f ["filled"] |> get_list get_cell in
-  let pawns = f ["units"] |> get_list get_pawn in
+  let pawns = f ["units"] |> get_list get_pawn |> Array.of_list in
+  let size = Array.length pawns in
+  let pawns = fun b -> pawns.(b mod size) in
   {
     id = get_int (f ["id"]);
     width;
@@ -69,7 +75,7 @@ let parse json =
     board = Board.init height width filled;
     length = get_int (f ["sourceLength"]);
     seeds = get_list get_int (f ["sourceSeeds"]);
-    pawns;
+    size; pawns;
   }
 
     
@@ -98,7 +104,19 @@ let () =
     let i = parse json in
     Format.printf "%a@." pp_input i
     ;
-    let init = { Config.b = i.board; Config.p = List.hd i.pawns } in
-    let path = Config.walk init in
-    if !simul then Simulation.doit init path
+    if ! simul then
+    List.fold_left (fun () seed ->
+    let rnd = Prng.make seed in
+    let board = Board.clone i.board in
+    let end_board =
+    iter i.length (fun board ->
+      let pawn = Prng.take rnd |> i.pawns in
+      let init = Config.init { Config.b = board; Config.p = pawn } in
+      let path = Config.walk init in
+      Simulation.doit init path
+    ) board
+    in ()
+    ) () i.seeds
+    else
+      ()
   ) (!filename)

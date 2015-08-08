@@ -21,6 +21,12 @@ let next (p: t) : int =
   p := Int32.( mul v 1103515245l |> add 12345l );
   get p
 
+(* Update the seed and returns the previous value *)
+let take (p: t) : int =
+  let v = get p in
+  let _ = next p in
+  v
+
 (* test
 let () =
   let f = Printf.printf "%d\n" in
