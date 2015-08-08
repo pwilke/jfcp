@@ -100,8 +100,48 @@ let pp_output fmt { pb_id; seed; tag; solution } =
   Format.fprintf fmt "id: %d; seed: %d; tag: %s; \n solution: %s\n"
 		 pb_id seed tag
 		 (string_of_list_order solution)
-    
-    
+
+(** This function computes the path for a round: given a board and a pawn about to fall, where do we lead it **)
+let round rnd pawns (board, finished, curpath) = 
+  if finished then (board,finished, curpath)
+  else begin
+      let pawn = Prng.take rnd |> pawns in
+      let init = Config.init { Config.b = board; Config.p = pawn } in
+      if Config.valid_config init then
+	begin
+	  let path = Config.walk init in
+	  let eb = Simulation.doit init path in
+	  Board.clean_end_of_round eb;
+	  eb , false , curpath @ path
+	end
+      else (board,true,curpath)
+    end
+
+(** This function computes the series of commands for a whole game: iterates rounds over the list of available pawns **)
+let play_seed (i: input_t) () seed =
+	let rnd = Prng.make seed in
+	let board = Board.clone i.board in
+	let (end_board, _, chemin) =
+	  (* finished is a boolean that is set to true when a pawn cannot be placed in the grid (e.g. full grid). When it is set we stop iterating on following pawns. *)
+	  iter i.length
+	       (round rnd i.pawns)  
+	       (board,false,[])
+	in
+	let out :output_t =
+	  {pb_id = i.id;
+	   seed = seed;
+	   tag = "";
+	   solution = chemin }
+	in Format.printf "%a@." pp_output out;
+	   let oc = open_out_bin ("out/" ^ (string_of_int i.id)) in 
+	   Ezjsonm.to_channel oc (to_jason out);
+	   close_out oc
+		     
+(** This function plays a full game over a board per seed provided in s **)
+let play_game i =  
+     List.fold_left (play_seed i) 
+        () i.seeds
+
 let () =
   let filename : string list ref = ref [] in
   let timelimit : float ref = ref 0.0 in (* seconds *)
@@ -122,53 +162,14 @@ let () =
 	 "rtfm"
   );
 
-  List.iter
-    (fun s ->
-     let fn = open_in s in
-     let json = Ezjsonm.from_channel fn in
-     let () = close_in fn in
-     let i = parse json in
-     Format.printf "%a@." pp_input i;
+  List.iter (fun s ->
+      let fn = open_in s in
+      let json = Ezjsonm.from_channel fn in
+      let () = close_in fn in
+      let i = parse json in
+      Format.printf "%a@." pp_input i;
+      play_game i)
 
-     if ! simul then
-       List.fold_left
-	 
-	 (fun () seed ->
-	  let rnd = Prng.make seed in
-	  let board = Board.clone i.board in
-	  let (end_board, _, chemin) =
-	    (* finished is a boolean that is set to true when a pawn cannot be placed in the grid (e.g. full grid). When it is set we stop iterating on following pawns. *)
-	    iter i.length
-		 (fun (board, finished, curpath) ->
-		  if finished then (board,finished, curpath)
-		  else begin
-		      let pawn = Prng.take rnd |> i.pawns in
-		      let init = Config.init { Config.b = board; Config.p = pawn } in
-		      if Config.valid_config init then
-			begin
-			  let path = Config.walk init in
-			  let eb = Simulation.doit init path in
-
-			  eb , false , curpath @ path
-			end
-		      else (board,true,curpath)
-		    end)
-		 (board,false,[])
-	  in
-	  let out :output_t =
-	    {pb_id = i.id;
-	     seed = seed;
-	     tag = "";
-	     solution = chemin }
-	  in Format.printf "%a@." pp_output out;
-	     let oc = open_out_bin ("out/" ^ (string_of_int i.id)) in 
-	     Ezjsonm.to_channel oc (to_jason out);
-	     close_out oc
-	     
-	 ) () i.seeds
-     else
-       ()
-
-    ) (!filename)
+     (!filename)
 
 

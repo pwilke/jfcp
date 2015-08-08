@@ -42,9 +42,9 @@ let clone (b: t) : t =
     )
   )
 
-(** Copy the line n in b to the following one. Non-sensical for n = height - 1. **)
+(** Copy the line n in b to the following one. Non-sensical for n = 0. **)
 let fall_step (b: t) (n: int) : unit =
-  b.(n + 1) <- b.(n)
+  b.(n) <- b.(n - 1)
 
 (** Set the line n to false **)
 let clean_line (b: t) (n: int) : unit =
@@ -74,6 +74,18 @@ let format ~pivot fmt =
     c;
     Format.fprintf fmt "|@\n"
   )
+
+(** Compute the list of lines which are full inside a board. Could be optimized if needed by casting it over the configuration by projection and testing only for affected lines **)
+ let full_lines (b: t): int list =
+   snd (Array.fold_left 
+     (fun (n,acc) line -> 
+      let full = Array.fold_left (fun acc bool -> acc && bool) true b.(n) in  
+      if full then (n+1,n::acc) else (n+1, acc)) 
+     (0,[]) b)
+
+ let clean_end_of_round (b: t): unit =
+   let l = List.rev (full_lines b) in
+   List.iter (fun n -> fall b n) l
 
 end
 module B = Board
