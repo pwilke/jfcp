@@ -110,17 +110,18 @@ let round rnd pawns (board, finished, curpath) =
       let init = Config.init preinit in
       if Config.valid_config init then
 	begin
-	  let preb = Config.proj preinit in
-	  let b = Config.proj init in
-	  
-	  Printf.printf ">>>>>New round!<<<<<<<\n";
-	  Format.printf "%a@." (Board.format ~pivot:(Some preinit.Config.p.Pawn.pivot)) preb;
-	  Format.printf "%a@." Pawn.format_intrep pawn;
-	  Format.printf "%a@." Pawn.format pawn;
-	  Format.printf "%a@." (Board.format ~pivot:(Some init.Config.p.Pawn.pivot)) b;
 	  let path = Config.walk init in
-	  Printf.printf "Path = %s\n" (string_of_list_order path);
-
+	  if !verbose then
+	    begin
+	      let preb = Config.proj preinit in
+	      let b = Config.proj init in	      
+	      Printf.printf ">>>>>New round!<<<<<<<\n";
+	      Format.printf "%a@." (Board.format ~pivot:(Some preinit.Config.p.Pawn.pivot)) preb;
+	      Format.printf "%a@." Pawn.format_intrep pawn;
+	      Format.printf "%a@." Pawn.format pawn;
+	      Format.printf "%a@." (Board.format ~pivot:(Some init.Config.p.Pawn.pivot)) b;
+	      Printf.printf "Path = %s\n" (string_of_list_order path);
+	    end;
 	  let eb =
 
 	  begin match Simulation.doit init path with
@@ -177,7 +178,7 @@ let play_seed jas (i: input_t) seed =
 	let out :output_t =
 	  {pb_id = i.id;
 	   seed = seed;
-	   tag = "";
+	   tag = "sunday";
 	   solution = chemin }
 	in if !verbose then Format.printf "%a@." pp_output out;
 	   match jas with 
@@ -192,7 +193,7 @@ let play_seed_simulate (i: input_t) seed path =
 	       (round_simulate rnd i.pawns)  
 	       (board,false,path)
 	in
-	Format.printf "Chemin restant: %s@." (string_of_list_order chemin_restant)
+	if !verbose then Format.printf "Chemin restant: %s@." (string_of_list_order chemin_restant)
 
 		     
 (** This function plays a full game over a board per seed provided in s **)
@@ -221,7 +222,7 @@ let () =
 	   "-v", Set verbose, "Print traces of simulation";
 	 ]
 	 (ignore: string -> unit)
-	 "rtfm"
+	 "Prière de bien vouloir vous référer à la documentation associée. Merci."
   );
 
   List.iter (fun s ->
@@ -230,7 +231,7 @@ let () =
       let json = Ezjsonm.from_channel fn in
       let () = close_in fn in
       let i = parse json in
-      Format.printf "%a@." pp_input i;
+      if !verbose then Format.printf "%a@." pp_input i;
 
       if ! simul then
 	begin

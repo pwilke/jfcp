@@ -50,7 +50,7 @@ module Config = struct
       (List.map (fun order ->
 		 (order, update { b; p } order)
 		)
-		[M E; M W; M SW; M SE(* ; R CW ; R CCW *)])
+		[M E; M W; M SW; M SE; R CW ; R CCW])
     in
     let rec f (pl: (order* t option) list) acc =
       let (acc1,acc2) = acc in
@@ -106,10 +106,13 @@ module Config = struct
    CellSet.iter (fun cell -> Board.set b cell true) c.p.Pawn.cells;
    b
 
+(** initialize the configuration by placing the pawn at the center of the top row, rounding toward the left **)
  let init (c: t): t =
    let (b, p) = (c.b, c.p) in
    let length = Array.length b.(0) in
    let (lm, rm) = CellSet.fold (fun cell (l,r) -> (min l cell.x, max r cell.x)) p.Pawn.cells (length - 1, 0) in
+   let row = CellSet.fold (fun cell r -> min r cell.y) p.Pawn.cells 1 in
+   if (row = 1) then failwith "Pawn not initialiazed over the first row" else
    let d = rm - lm + 1 in
    let t = (length - d) / 2 - lm in
    let p = if t > 0
