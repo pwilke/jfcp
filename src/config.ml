@@ -50,7 +50,7 @@ module Config = struct
       (List.map (fun order ->
 		 (order, update { b; p } order)
 		)
-		[M E; M W; M SW; M SE; R CW ; R CCW])
+		[M E; M W; M SW; M SE(* ; R CW ; R CCW *)])
     in
     let rec f (pl: (order* t option) list) acc =
       let (acc1,acc2) = acc in

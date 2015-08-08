@@ -123,9 +123,6 @@ let round rnd pawns (board, finished, curpath) =
 
 	  let eb =
 
-	    (*  *)
-
-	    (*  *)
 	  begin match Simulation.doit init path with
     | Left (eb, []) -> Board.clean_end_of_round eb; eb
     | Left (eb, morepath) -> failwith "round: trailing orders at the end of path"
@@ -138,6 +135,34 @@ let round rnd pawns (board, finished, curpath) =
       else (board,true,curpath)
     end
 
+
+(** This function executes a given path for a round and return the remaining path **)
+let round_simulate rnd pawns (board, finished, path) = 
+  if finished then (board,finished, path)
+  else begin
+      let pawn = Prng.take rnd |> pawns in
+      let preinit = { Config.b = board; Config.p = pawn } in
+      let init = Config.init preinit in
+      if Config.valid_config init then
+	begin
+	  Printf.printf ">>>>>New round!<<<<<<<\n";
+	  let b = Config.proj init in
+	  (* Format.printf "%a@." Pawn.format_intrep pawn; *)
+	  Format.printf "%a@." Pawn.format pawn;
+	  Format.printf "%a@." (Board.format ~pivot:(Some init.Config.p.Pawn.pivot)) b;
+	  Printf.printf "Path = %s\n" (string_of_list_order path);
+	  let (eb,path) =
+	  begin match Simulation.doit init path with
+		| Left (eb, restpath) -> Board.clean_end_of_round eb; (eb,restpath)
+		| Right(cfg) -> failwith "round: path does not lead to a locked configuration"
+	  end
+	  in
+	  eb , false, path
+	end
+      else (board,true, path)
+    end
+
+	 
 (** This function computes the series of commands for a whole game: iterates rounds over the list of available pawns **)
 
 let play_seed jas (i: input_t) seed =
@@ -158,6 +183,16 @@ let play_seed jas (i: input_t) seed =
 	   match jas with 
 	   | ` A j -> `A ((to_jason out)::j)
 	   | _     -> failwith "not jas" 
+			       
+let play_seed_simulate (i: input_t) seed path =
+	let rnd = Prng.make seed in
+	let board = Board.clone i.board in
+	let (end_board, _, chemin_restant) =
+	  iter i.length
+	       (round_simulate rnd i.pawns)  
+	       (board,false,path)
+	in
+	Format.printf "Chemin restant: %s@." (string_of_list_order chemin_restant)
 
 		     
 (** This function plays a full game over a board per seed provided in s **)
@@ -171,6 +206,8 @@ let () =
   let memolimit : float ref = ref 0.0 in (* mega-bytes *)
   let phop : string ref = ref "" in (* phrase of power *)
   let simul : bool ref = ref false in
+  let seed : int ref = ref 0 in
+  let chemin : string ref = ref "" in
   Arg.(parse
 	 [
 	   "-f", String (fun s -> filename := s :: !filename),
@@ -178,7 +215,9 @@ let () =
 	   "-t", Set_float timelimit, "Time limit, in seconds, to produce output";
 	   "-m", Set_float memolimit, "Memory limit, in megabytes, to produce output";
 	   "-p", Set_string phop, "Phrase of power, as quoted string";
-	   "-s", Set simul, "Stepwise";
+	   "-s", Set simul, "Simulate a given path";
+	   "-c", Set_string chemin, "Path to simulate";
+	   "-r", Set_int seed, "Seed to simulate on";
 	   "-v", Set verbose, "Print traces of simulation";
 	 ]
 	 (ignore: string -> unit)
@@ -192,10 +231,17 @@ let () =
       let () = close_in fn in
       let i = parse json in
       Format.printf "%a@." pp_input i;
-      let jas = play_game i in
-      let oc = open_out_bin ("out/" ^ (string_of_int i.id)) in 
-      Ezjsonm.to_channel oc jas;
-      close_out oc)
+
+      if ! simul then
+	begin
+	  play_seed_simulate i !seed (Solution.order_list_of_string !chemin)
+	end
+      else
+	begin let jas = play_game i in
+	      let oc = open_out_bin ("out/" ^ (string_of_int i.id)) in 
+	      Ezjsonm.to_channel oc jas;
+	      close_out oc
+	end)
 
      (!filename)
 
