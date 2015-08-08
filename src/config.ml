@@ -109,9 +109,9 @@ module Config = struct
  let init (c: t): t =
    let (b, p) = (c.b, c.p) in
    let length = Array.length b.(0) in
-   let (lm, rm) = CellSet.fold (fun cell (l,r) -> (min l cell.x, max r cell.x)) p.Pawn.cells (length, 0) in
-   let d = rm - lm in
-   let t = length / 2 - d / 2 - lm in
+   let (lm, rm) = CellSet.fold (fun cell (l,r) -> (min l cell.x, max r cell.x)) p.Pawn.cells (length - 1, 0) in
+   let d = rm - lm + 1 in
+   let t = (length - d) / 2 - lm in
    let p = if t > 0
 	   then iter t (fun p -> Pawn.move p E) p
 	   else iter (-t) (fun p -> Pawn.move p W) p in
