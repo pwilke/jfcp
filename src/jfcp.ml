@@ -18,3 +18,8 @@ let iter (n: int) (f: 'a -> 'a) (a: 'a) : 'a =
   | n -> aux (f a) (n - 1)
   in 
   aux a n
+
+(* Coproducts *)
+type ('a, 'b) either =
+| Left of 'a
+| Right of 'b
