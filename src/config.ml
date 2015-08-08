@@ -84,7 +84,7 @@ module Config = struct
 	       match sons_failure with
 	       | a::sf ->
 		  let s = score b p in
-		  if s > bestscore
+		  if s >= bestscore
 		  then (a::cur,s)
 		  else (best,bestscore)
 	       | [] -> (best,bestscore)

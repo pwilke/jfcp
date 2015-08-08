@@ -121,7 +121,11 @@ let round rnd pawns (board, finished, curpath) =
 	  let path = Config.walk init in
 	  Printf.printf "Path = %s\n" (string_of_list_order path);
 
-    let eb =
+	  let eb =
+
+	    (*  *)
+
+	    (*  *)
 	  begin match Simulation.doit init path with
     | Left (eb, []) -> Board.clean_end_of_round eb; eb
     | Left (eb, morepath) -> failwith "round: trailing orders at the end of path"
