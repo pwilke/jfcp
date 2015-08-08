@@ -104,6 +104,7 @@ let () =
     let i = parse json in
     Format.printf "%a@." pp_input i
     ;
+
     if ! simul then
     List.fold_left (fun () seed ->
     let rnd = Prng.make seed in
@@ -113,10 +114,11 @@ let () =
       let pawn = Prng.take rnd |> i.pawns in
       let init = Config.init { Config.b = board; Config.p = pawn } in
       let path = Config.walk init in
-      Simulation.doit init path
+      Simulation.doit init path;
     ) board
     in ()
     ) () i.seeds
     else
       ()
+
   ) (!filename)
