@@ -37,8 +37,7 @@ let round rnd pawns score (board, finished, curpath) =
 	  	   end
 	       end)
 	      (path,bestscore)
-	      (* [ "ei!"]  ;"ia! ia!";"yuggoth";"cthulhu"; *)["r'lyeh"]
-
+              [ "ei!";"ia! ia!";"yuggoth";"cthulhu";"bigboote";"conway";"cocke";"backus";"hopcroft";"r'lyeh"]
 	  in
 	  if !verbose then
 	    begin
