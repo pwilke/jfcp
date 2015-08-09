@@ -51,9 +51,9 @@ module Config = struct
   let score (b: board) (p: pawn) (path: order list): score_t =
     (List.length (Board.full_lines (proj {b ; p} )),
      CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0,
-     CellSet.fold (fun c n -> min n c.y) p.Pawn.cells max_int,
+    CellSet.fold (fun c n -> min n c.y) p.Pawn.cells max_int,
      Solution.contain_wop path)
- 
+ 							    
   let compute_sons (b: board) (p: pawn) : (order * pawn) list * order list =
     let olds = 
       (List.map (fun order ->
