@@ -3,6 +3,7 @@ open Board
 open Pawn
 open Cell
 open Orders
+open Solution
 
 type res_Move = Out_Of_Board | Occupied | Fine 
 
@@ -45,13 +46,14 @@ module Config = struct
     in
     if (valid c.b np) then Some { b = c.b ; p = np } else None
 
-  type score_t = int * int * int
+  type score_t = int * int * int * bool
 							    
-  let score (b: board) (p: pawn): score_t =
+  let score (b: board) (p: pawn) (path: order list): score_t =
     (List.length (Board.full_lines (proj {b ; p} )),
-      CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0,
-     CellSet.fold (fun c n -> min n c.y) p.Pawn.cells max_int)
-							    
+     CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0,
+     CellSet.fold (fun c n -> min n c.y) p.Pawn.cells max_int,
+     Solution.contain_wop path)
+ 
   let compute_sons (b: board) (p: pawn) : (order * pawn) list * order list =
     let olds = 
       (List.map (fun order ->
@@ -90,7 +92,7 @@ module Config = struct
 	     begin
 	       match sons_failure with
 	       | a::sf ->
-		  let s = score b p in
+		  let s = score b p (a::cur) in
 		  if s >= bestscore
 		  then (a::cur,s)
 		  else (best,bestscore)
@@ -105,7 +107,7 @@ module Config = struct
 	   aux cur ol sc col r
       end      
     in
-    let (best, bestscore, colored) = aux [] [] (0,0,0) [] [c.p] in
+    let (best, bestscore, colored) = aux [] [] (0,0,0,false) [] [c.p] in
     List.rev best
 
 (** initialize the configuration by placing the pawn at the center of the top row, rounding toward the left **)

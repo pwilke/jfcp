@@ -14,7 +14,7 @@ let trivial_string_of_order_list (ol: order list) =
   String.concat "" (List.map trivial_symb_of_order ol)
 		
 let order_of_char c : order =
-  if String.contains "p'!03" c then M W
+  if String.contains "p'!.03" c then M W
   else if String.contains "bcefy2" c then M E
   else if String.contains "aghij4" c then M SW
   else if String.contains "lmno 5" c then M SE
@@ -47,19 +47,17 @@ let replace_powers (pow: string list) (ol: order list) : string =
   let s = trivial_string_of_order_list ol in
   List.fold_left (fun acc p -> replace_power p acc) s pow
 
+let contain_wop (path: order list): bool =
+  let s = trivial_string_of_order_list path in
+  Format.printf "%s@." s;
+ let wops = ["ei!";"ia! ia!";"yuggoth"; "r'lyeh"] in
+  List.fold_left 
+    (fun b pow -> 
+     let pow_ord = order_list_of_string pow in
+     let pow_ord_triv = trivial_string_of_order_list pow_ord in
+     Format.printf "%s@." pow_ord_triv;
+     b || Str.string_match (Str.regexp pow_ord_triv) s 0) false wops
 
-
-(* let _ = *)
-(*   Printf.printf "%s\n" (replace_powers ["ei!";"ia! ia!"] [ M W; M E; M SW; M W; M E; M SW; M W ]) *)
+let _ =
+  Printf.printf "%B\n" (contain_wop [ M W; M E; M SW; M W; M E; M SW; M W ])
 		     
-
-	   
-let rec prelist a b = match a, b with
-  | [], _ -> true
-  | _, [] -> false
-  | h::t, h'::t' -> h = h' && prelist t t';;
-
-let rec sublist a b = match a, b with
-  | [], _ -> true
-  | _, [] -> false
-  | h::_, h'::t' -> (h = h' && prelist a b) || sublist a t';;
