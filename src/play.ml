@@ -29,10 +29,7 @@ let round rnd pawns score (board, finished, curpath) =
 		      if bestscore_aux >= bestscore
 		      then (prefix@path_aux,bestscore_aux)
 		      else (path,bestscore)
-		 with Simulation.Unsafe -> begin
-		     Printf.eprintf "====>>!!@@ç_UNSAFE POW %s\n" elt;
-		     (path,bestscore)
-		   end
+		 with Simulation.Unsafe -> (path,bestscore)
 	       end)
 	      (path,bestscore)
 	      [ "ei!";"ia! ia!";"yuggoth";"cthulhu";"r'lyeh"]
