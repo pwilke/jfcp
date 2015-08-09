@@ -55,7 +55,7 @@ let play_seed jas (i: input_t) seed score =
 	 (round rnd i.pawns score)  
 	 (board,false,[])
   in
-  Format.printf "%s%d@,%d@." "Seed: " seed (fst !score - temp);
+  if !verbose then Format.printf "%s%d@,%d@." "Seed: " seed (fst !score - temp);
   let out :output_t =
     {pb_id = i.id;
      seed = seed;
