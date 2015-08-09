@@ -23,13 +23,16 @@ let round rnd pawns score (board, finished, curpath) =
 	       begin
 		 try
 		   match Simulation.do_it_safe (PawnSet.empty) init prefix with
-		   | Left c, _ -> (path,bestscore)
+		   | Left c,_ -> (path,bestscore)
 		   | Right c, pset ->
 		      let (path_aux,bestscore_aux) = Config.walk c pset in
 		      if bestscore_aux >= bestscore
 		      then (prefix@path_aux,bestscore_aux)
 		      else (path,bestscore)
-		 with Simulation.Unsafe -> (path,bestscore)
+		 with Simulation.Unsafe -> begin
+		     (* Printf.eprintf "====>>!!@@ç_UNSAFE POW %s\n" elt *)
+		    (* ; *)(path,bestscore)
+		   end
 	       end)
 	      (path,bestscore)
 	      [ "ei!";"ia! ia!";"yuggoth";"cthulhu";"r'lyeh"]

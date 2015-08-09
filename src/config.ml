@@ -91,7 +91,6 @@ module Config = struct
     f olds ([],[])
 	     
   let not_colored (colored: PawnSet.t) (p: pawn) : bool =
-    
     not (PawnSet.exists (Pawn.equiv p) colored)
 
 	     
