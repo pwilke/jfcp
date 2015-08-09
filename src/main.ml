@@ -71,7 +71,8 @@ let simul : bool ref = ref false in
 let seed : int ref = ref 0 in
 let chemin : string ref = ref "" in
 let score = ref (0, 0) in
-let viz = ref false in 
+let viz = ref false in
+let show_sub = ref false in
 Arg.(parse
 	[
 	"-f", String (fun s -> filename := s :: !filename),
@@ -84,10 +85,16 @@ Arg.(parse
 	"-r", Set_int seed, "Seed to simulate on";
 	"-v", Set verbose, "Print traces of simulation";
 	"-V", Set viz, "Just print the initial board";
+	"-submitted", Set show_sub, "Print submitted scores";
 	]
 	(ignore: string -> unit)
 	"Prière de bien vouloir vous référer à la documentation associée. Merci."
 );
+
+if !show_sub then begin
+    Parse_result.show_submitted_scores ()
+    ;exit 0
+  end;
 
 List.iter (fun s ->
 

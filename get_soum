@@ -1,0 +1,3 @@
+#!/bin/bash
+curl --user :ZFeaJ4kloUf3UHM9NIxTXPMfopNUKeDwFDc/obo7kXs= -X GET \
+        https://davar.icfpcontest.org/teams/175/solutions > submissions
