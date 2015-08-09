@@ -94,10 +94,10 @@ module Config = struct
  							    
   let compute_sons (b: board) (p: pawn) : (order * pawn) list * order list =
     let olds = 
-      (List.map (fun order ->
+      (List.rev_map (fun order ->
 		 (order, update { b; p } order)
 		)
-		[M E; M W; M SW; M SE; R CW ; R CCW])
+		[ R CCW; R CW; M SE; M SW; M W; M E ])
     in
     let rec f (pl: (order* t option) list) acc =
       let (acc1,acc2) = acc in
