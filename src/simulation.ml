@@ -28,9 +28,9 @@ let rec doit (cfg: Config.t) : order list -> (Board.t * order list, Config.t) ei
     
 exception Unsafe
 
-let rec do_it_safe (bs: PawnSet.t) (cfg: Config.t) : order list -> (Board.t * order list, Config.t) either =
+let rec do_it_safe (bs: PawnSet.t) (cfg: Config.t) : order list -> (Board.t * order list, Config.t) either * PawnSet.t =
   begin function
-  | [] -> Right cfg
+  | [] -> Right cfg, bs
   | order :: path ->
       if ! verbose 
       then Format.printf "%a\n%s@."
@@ -42,7 +42,7 @@ let rec do_it_safe (bs: PawnSet.t) (cfg: Config.t) : order list -> (Board.t * or
 	       let pp = cfg'.Config.p in
 	       if PawnSet.mem pp bs then raise Unsafe
 	       else do_it_safe (PawnSet.add pp bs) cfg' path
-	    | None -> Left(Config.proj cfg, path)
+	    | None -> Left(Config.proj cfg, path) , bs
       end
   end
 

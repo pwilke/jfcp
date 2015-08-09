@@ -90,21 +90,22 @@ module Config = struct
     in
     f olds ([],[])
 	     
-  let not_colored (colored: pawn list) (p: pawn) : bool =
-    not (List.exists (Pawn.equiv p) colored)
+  let not_colored (colored: PawnSet.t) (p: pawn) : bool =
+    
+    not (PawnSet.exists (Pawn.equiv p) colored)
 
 	     
-  let walk (c: t) : order list * score_t =
+  let walk (c: t) (colored: PawnSet.t) : order list * score_t =
     let b = c.b in
-    let rec aux (cur: order list) (best: order list) (bestscore: score_t) (colored: pawn list) (pl: pawn list) : (order list * score_t * pawn list) =
+    let rec aux (cur: order list) (best: order list) (bestscore: score_t) (colored: PawnSet.t) (pl: pawn list) : (order list * score_t * PawnSet.t) =
       begin
 	match pl with
 	  [] -> (best,bestscore,colored)
 	| p::r ->
-	   if debug then Format.printf "%a@\n%d." Pawn.format p (List.length colored);
+	   if debug then Format.printf "%a@\n%d." Pawn.format p (PawnSet.cardinal colored);
 	   if not(not_colored colored p) then aux cur best bestscore colored r
 	   else 
-	   let colored = p::colored in
+	   let colored = PawnSet.add p colored in
 	   let (sons_success,sons_failure) = compute_sons b p in
 	   let best, bestscore = 
 	     begin
@@ -125,7 +126,7 @@ module Config = struct
 	   aux cur ol sc col r
       end      
     in
-    let (best, bestscore, colored) = aux [] [] min_int [] [c.p] in
+    let (best, bestscore, colored) = aux [] [] min_int colored [c.p] in
     List.rev best, bestscore
 
 (** initialize the configuration by placing the pawn at the center of the top row, rounding toward the left **)
