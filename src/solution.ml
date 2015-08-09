@@ -12,6 +12,20 @@ let trivial_symb_of_order (o: order) =
 let trivial_string_of_order_list (ol: order list) =
   String.concat "" (List.map trivial_symb_of_order ol)
 
+(* let rec remove x = function *)
+(*   | [] -> failwith "x not in list" *)
+(*   | h::t -> if h = x then t else h::(remove x t);; *)
+
+(* let rec prelist a b = match a, b with *)
+(*   | [], _ -> true *)
+(*   | _, [] -> false *)
+(*   | h::t, h'::t' -> h = h' && prelist t t';; *)
+
+(* let rec sublist a b = match a, b with *)
+(*   | [], _ -> true *)
+(*   | _, [] -> false *)
+(*   | h::_, h'::t' -> (h = h' && prelist a b) || sublist a t';; *)
+		
 let order_of_char c : order =
   if String.contains "p'!03" c then M W
   else if String.contains "bcefy2" c then M E
