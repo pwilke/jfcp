@@ -68,9 +68,10 @@ let play_game i score =
   List.fold_left (fun jas s ->
 		  score := (fst (! score), 0);
 		  let res = play_seed jas i s score in
-		  Printf.printf "After playing seed %d, score is (%d,%d), avg is %d\n"
-				s (fst (! score)) (snd (! score))
-				(fst (!score) / List.length (i.seeds))
-		  ; res) 
+		  (* Printf.printf "After playing seed %d, score is (%d,%d), avg is %d\n" *)
+		  (* 		s (fst (! score)) (snd (! score)) *)
+		  (* 		(fst (!score) / List.length (i.seeds)) *)
+		  (* ;  *)
+		  res) 
         (`A []) i.seeds
 

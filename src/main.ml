@@ -102,7 +102,7 @@ List.iter (fun s ->
 	      let oc = open_out_bin ("out/" ^ (string_of_int i.id)) in 
 	      Ezjsonm.to_channel oc jas;
 	      close_out oc;
-	      Format.printf "%s%d@." "Expected score: " (fst !score)
+	      Format.printf "Expected score for problem %d: %d@." i.id (fst !score / List.length i.seeds)
 	end)
 
      (!filename)
