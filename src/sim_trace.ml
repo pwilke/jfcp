@@ -22,9 +22,9 @@ let round_simulate rnd pawns score (board, finished, path) =
 	  Format.printf "%a@." (Board.format ~pivot:(Some init.Config.p.Pawn.pivot)) b;
 	  Printf.printf "Path = %s\n" (string_of_list_order path);
 	  let (eb,path) =
-	  begin match Simulation.doit init path with
-		| Left (eb, restpath) -> Board.clean_end_of_round eb score (CellSet.cardinal pawn.Pawn.cells); (eb,restpath)
-		| Right(cfg) -> failwith "round: path does not lead to a locked configuration"
+	  begin match Simulation.do_it_safe PawnSet.empty init path with
+		| Left (eb, restpath) ,_ -> Board.clean_end_of_round eb score (CellSet.cardinal pawn.Pawn.cells); (eb,restpath)
+		| Right(cfg),_ -> failwith "round: path does not lead to a locked configuration"
 	  end
 	  in
 	  eb , false, path

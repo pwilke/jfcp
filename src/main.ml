@@ -110,11 +110,11 @@ List.iter (fun s ->
     if ! simul then
       begin
 
-	let c = if !chemin = ""
+	let (c,seed) = if !chemin = ""
 		then Parse_result.extract_solution_from_time !time
-		else !chemin in 
-	
-      Sim_trace.play_seed_simulate i !seed (Solution.order_list_of_string c) score
+		else !chemin, !seed in 
+	Format.printf "Simulating trace %s@." c ;
+      Sim_trace.play_seed_simulate i seed (Solution.order_list_of_string c) score
     end
     else
       begin let jas = Play.play_game i score in

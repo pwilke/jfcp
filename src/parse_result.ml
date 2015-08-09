@@ -41,4 +41,4 @@ let extract_solution_from_time time =
   let i = parse_res json in
   match List.filter (fun {createdAt} -> createdAt = time) i with
     [] -> failwith "Invalid time for extracting"
-  | {solution}::_ -> solution
+  | {solution; seed}::_ -> solution,seed

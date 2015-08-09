@@ -20,21 +20,21 @@ let round rnd pawns score (board, finished, curpath) =
 	  let (path,bestscore) = Config.walk init PawnSet.empty in
 	  let (path,bestscore) =
 	    List.fold_left
-	      (fun (path,bestscore) elt -> 
+	      (fun (path,bestscore) elt ->
 	       let prefix = Solution.order_list_of_string elt in
 	       begin
-		 try
-		   match Simulation.do_it_safe (PawnSet.empty) init prefix with
-		   | Left c,_ -> (path,bestscore)
-		   | Right c, pset ->
-		      let (path_aux,bestscore_aux) = Config.walk c (PawnSet.remove (c.Config.p) pset) in
-		      if bestscore_aux >= bestscore
+	  	 try
+	  	   match Simulation.do_it_safe (PawnSet.empty) init prefix with
+	  	   | Left c,_ -> (path,bestscore)
+	  	   | Right c, pset ->
+	  	      let (path_aux,bestscore_aux) = Config.walk c (PawnSet.remove (c.Config.p) pset) in
+	  	      if bestscore_aux >= bestscore
 		      then (prefix@path_aux,bestscore_aux)
-		      else (path,bestscore)
-		 with Simulation.Unsafe -> begin
-		     (* Printf.eprintf "====>>!!@@ç_UNSAFE POW %s\n" elt *)
-		    (* ; *)(path,bestscore)
-		   end
+	  	      else (path,bestscore)
+	  	 with Simulation.Unsafe -> begin
+	  	     (* Printf.eprintf "====>>!!@@ç_UNSAFE POW %s\n" elt *)
+	  	    (* ; *)(path,bestscore)
+	  	   end
 	       end)
 	      (path,bestscore)
 	      (* [ "ei!"]  ;"ia! ia!";"yuggoth";"cthulhu"; *)["r'lyeh"]
