@@ -89,12 +89,10 @@ module Config = struct
       | (o, Some p)::r -> f r ((o,p.p)::acc1,acc2)
     in
     f olds ([],[])
-	     
-  let not_colored (colored: PawnSet.t) (p: pawn) : bool =
-    
-    not (PawnSet.exists (Pawn.equiv p) colored)
 
-	     
+  let is_colored (colored: PawnSet.t) (p: pawn) : bool =
+    PawnSet.mem p colored
+
   let walk (c: t) (colored: PawnSet.t) : order list * score_t =
     let b = c.b in
     let rec aux (cur: order list) (best: order list) (bestscore: score_t) (colored: PawnSet.t) (pl: pawn list) : (order list * score_t * PawnSet.t) =
@@ -103,7 +101,7 @@ module Config = struct
 	  [] -> (best,bestscore,colored)
 	| p::r ->
 	   if debug then Format.printf "%a@\n%d." Pawn.format p (PawnSet.cardinal colored);
-	   if not(not_colored colored p) then aux cur best bestscore colored r
+	   if is_colored colored p then aux cur best bestscore colored r
 	   else 
 	   let colored = PawnSet.add p colored in
 	   let (sons_success,sons_failure) = compute_sons b p in
