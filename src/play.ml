@@ -64,6 +64,9 @@ let play_seed jas (i: input_t) seed score =
 
 (** This function plays a full game over a board per seed provided in s **)
 let play_game i score =  
-     List.fold_left (fun jas s -> play_seed jas i s score) 
+  List.fold_left (fun jas s ->
+		  let res = play_seed jas i s score in
+		  Printf.printf "After playing seed %d, score is %d\n"
+				s (fst (! score)); res) 
         (`A []) i.seeds
 
