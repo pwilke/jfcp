@@ -25,7 +25,7 @@ let round rnd pawns score (board, finished, curpath) =
 		   match Simulation.do_it_safe (PawnSet.empty) init prefix with
 		   | Left c,_ -> (path,bestscore)
 		   | Right c, pset ->
-		      let (path_aux,bestscore_aux) = Config.walk c pset in
+		      let (path_aux,bestscore_aux) = Config.walk c (PawnSet.remove (c.Config.p) pset) in
 		      if bestscore_aux >= bestscore
 		      then (prefix@path_aux,bestscore_aux)
 		      else (path,bestscore)
