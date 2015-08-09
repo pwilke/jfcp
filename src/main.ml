@@ -60,6 +60,8 @@ seeds = get_list get_int (f ["sourceSeeds"]);
 size; pawns;
 }
 
+
+  
 let () =
 let filename : string list ref = ref [] in
 let timelimit : float ref = ref 0.0 in (* seconds *)
@@ -69,6 +71,7 @@ let simul : bool ref = ref false in
 let seed : int ref = ref 0 in
 let chemin : string ref = ref "" in
 let score = ref (0, 0) in
+
 Arg.(parse
 	[
 	"-f", String (fun s -> filename := s :: !filename),
@@ -98,7 +101,11 @@ List.iter (fun s ->
 	Sim_trace.play_seed_simulate i !seed (Solution.order_list_of_string !chemin) score
     end
     else
-    begin let jas = Play.play_game i score in
+      begin let jas = Play.play_game i score in
+
+
+    
+	    
 	      let oc = open_out_bin ("out/" ^ (string_of_int i.id)) in 
 	      Ezjsonm.to_channel oc jas;
 	      close_out oc;
