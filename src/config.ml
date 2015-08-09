@@ -29,7 +29,13 @@ module Config = struct
 
   let valid_config (c: t) : bool =
     valid c.b c.p
-		 
+
+  let proj (c: t): board =
+    let b = Board.clone c.b in
+    CellSet.iter (fun cell -> Board.set b cell true) c.p.Pawn.cells;
+    b
+
+	 
 (** Updates a configuration after an order **) 
   let update (c: t) (o: order): t option =
     let np = 
@@ -39,10 +45,11 @@ module Config = struct
     in
     if (valid c.b np) then Some { b = c.b ; p = np } else None
 
-  type score_t = int * int
+  type score_t = int * int * int
 							    
   let score (b: board) (p: pawn): score_t =
-    (CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0,
+    (List.length (Board.full_lines (proj {b ; p} )),
+      CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0,
      CellSet.fold (fun c n -> min n c.y) p.Pawn.cells max_int)
 							    
   let compute_sons (b: board) (p: pawn) : (order * pawn) list * order list =
@@ -98,13 +105,8 @@ module Config = struct
 	   aux cur ol sc col r
       end      
     in
-    let (best, bestscore, colored) = aux [] [] (0,0) [] [c.p] in
+    let (best, bestscore, colored) = aux [] [] (0,0,0) [] [c.p] in
     List.rev best
-
- let proj (c: t): board =
-   let b = Board.clone c.b in
-   CellSet.iter (fun cell -> Board.set b cell true) c.p.Pawn.cells;
-   b
 
 (** initialize the configuration by placing the pawn at the center of the top row, rounding toward the left **)
  let init (c: t): t =
