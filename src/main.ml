@@ -71,7 +71,7 @@ let simul : bool ref = ref false in
 let seed : int ref = ref 0 in
 let chemin : string ref = ref "" in
 let score = ref (0, 0) in
-
+let viz = ref false in 
 Arg.(parse
 	[
 	"-f", String (fun s -> filename := s :: !filename),
@@ -83,6 +83,7 @@ Arg.(parse
 	"-c", Set_string chemin, "Path to simulate";
 	"-r", Set_int seed, "Seed to simulate on";
 	"-v", Set verbose, "Print traces of simulation";
+	"-V", Set viz, "Just print the initial board";
 	]
 	(ignore: string -> unit)
 	"Prière de bien vouloir vous référer à la documentation associée. Merci."
@@ -94,7 +95,8 @@ List.iter (fun s ->
     let json = Ezjsonm.from_channel fn in
     let () = close_in fn in
     let i = parse json in
-    if !verbose then Format.printf "%a@." pp_input i;
+    if !verbose then Format.printf "%a@." (pp_input true) i;
+    if !viz then begin Format.printf "%a@." (pp_input false) i; exit 0 end;
 
     if ! simul then
     begin

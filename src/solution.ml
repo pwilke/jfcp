@@ -1,30 +1,17 @@
+open Jfcp
 open Orders
 
 let trivial_symb_of_order (o: order) =
   match o with
-  | M E -> "e"
-  | M W -> "!"
+  | M E -> "b"
+  | M W -> "p"
   | M SE -> "l"
-  | M SW -> "i"
+  | M SW -> "a"
   | R CW -> "d"
   | R CCW -> "k"
 
 let trivial_string_of_order_list (ol: order list) =
   String.concat "" (List.map trivial_symb_of_order ol)
-
-(* let rec remove x = function *)
-(*   | [] -> failwith "x not in list" *)
-(*   | h::t -> if h = x then t else h::(remove x t);; *)
-
-(* let rec prelist a b = match a, b with *)
-(*   | [], _ -> true *)
-(*   | _, [] -> false *)
-(*   | h::t, h'::t' -> h = h' && prelist t t';; *)
-
-(* let rec sublist a b = match a, b with *)
-(*   | [], _ -> true *)
-(*   | _, [] -> false *)
-(*   | h::_, h'::t' -> (h = h' && prelist a b) || sublist a t';; *)
 		
 let order_of_char c : order =
   if String.contains "p'!03" c then M W
@@ -49,4 +36,30 @@ let implode l =
 
 let order_list_of_string (s: string) : order list =
   List.map order_of_char (explode s)
-		
+
+
+let replace_power (pow: string) (s : string) : string =
+  let pow_ord = order_list_of_string pow in
+  let pow_ord_triv = trivial_string_of_order_list pow_ord in
+  Str.global_replace (Str.regexp pow_ord_triv) pow s
+
+let replace_powers (pow: string list) (ol: order list) : string =
+  let s = trivial_string_of_order_list ol in
+  List.fold_left (fun acc p -> replace_power p acc) s pow
+
+
+
+(* let _ = *)
+(*   Printf.printf "%s\n" (replace_powers ["ei!";"ia! ia!"] [ M W; M E; M SW; M W; M E; M SW; M W ]) *)
+		     
+
+	   
+let rec prelist a b = match a, b with
+  | [], _ -> true
+  | _, [] -> false
+  | h::t, h'::t' -> h = h' && prelist t t';;
+
+let rec sublist a b = match a, b with
+  | [], _ -> true
+  | _, [] -> false
+  | h::_, h'::t' -> (h = h' && prelist a b) || sublist a t';;

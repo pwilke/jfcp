@@ -15,13 +15,13 @@ seeds: int list;
 }
 
 (** formatting of an input *)
-let pp_input fmt { id ; height ; width ; board ; length ; seeds ; size ; pawns } =
+let pp_input (ppawns: bool) fmt { id ; height ; width ; board ; length ; seeds ; size ; pawns } =
 Format.fprintf fmt "id: %d; w: %d; h: %d\nl: %d; s: %a@\n%a"
 		id width height
 		length (pp_list pp_int ";") seeds
 		(Board.format ~pivot:None) board
 ;
-for i = 0 to size - 1 do
+if ppawns then for i = 0 to size - 1 do
     Format.fprintf fmt "%a" Pawn.format (pawns i)
 done
 
@@ -40,7 +40,7 @@ tag: string;
 solution: order list }
 
 let to_jason { pb_id; seed; tag; solution } =
-let s = Solution.trivial_string_of_order_list solution in
+let s = Solution.replace_powers ["ei!";"ia! ia!";"yuggoth"; "r'lyeh"] solution in
 `O [("problemId", `Float (float pb_id)) ; ("seed", `Float (float seed))
     (* ; ("tag", `String tag) *)
     ; ("solution", `String s)]
