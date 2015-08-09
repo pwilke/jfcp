@@ -53,8 +53,15 @@ let round rnd pawns score (board, finished, curpath) =
 
 	  begin match Simulation.doit init path with
     | Left (eb, []) -> Board.clean_end_of_round eb score (CellSet.cardinal pawn.Pawn.cells); eb
-    | Left (eb, morepath) -> failwith "round: trailing orders at the end of path"
-    | Right(cfg) -> failwith "round: path does not lead to a locked configuration"
+    | Left (eb, morepath) ->
+        Printf.sprintf "round: trailing orders at the end of path\n%s\n%s"
+        (string_of_list_order path)
+        (string_of_list_order morepath)
+        |> failwith
+    | Right(cfg) ->
+        Printf.sprintf "round: path does not lead to a locked configuration\n%s"
+        (string_of_list_order path)
+        |> failwith
     end
     in
 
