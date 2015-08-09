@@ -21,6 +21,7 @@ let round rnd pawns score (board, finished, curpath) =
 	      let preb = Config.proj preinit in
 	      let b = Config.proj init in	      
 	      Printf.printf ">>>>>New round!<<<<<<<\n";
+	      Format.printf "%s%d@." "Current score is: " (fst !score);
 	      Format.printf "%a@." (Board.format ~pivot:(Some preinit.Config.p.Pawn.pivot)) preb;
 	      Format.printf "%a@." Pawn.format_intrep pawn;
 	      Format.printf "%a@." Pawn.format pawn;
@@ -65,8 +66,9 @@ let play_seed jas (i: input_t) seed score =
 (** This function plays a full game over a board per seed provided in s **)
 let play_game i score =  
   List.fold_left (fun jas s ->
+		  score := (fst (! score), 0);
 		  let res = play_seed jas i s score in
 		  Printf.printf "After playing seed %d, score is %d\n"
 				s (fst (! score)); res) 
-        (`A []) i.seeds
+       (`A []) i.seeds
 
