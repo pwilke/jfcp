@@ -68,9 +68,27 @@ module Config = struct
     done;
     !res
  
+   (** Given a board and a pawn, computes the amount of holes the pawn might cover if place over here **)
+  let cover_holes' (b: board) (p: pawn): int =
+    let width = Board.width b in
+    let height = Board.height b in
+    let (hmin, hmax) = horizontal_bound p (width - 1) 0 in
+    let (vmin, vmax) = vertical_bound p (height - 1) 0 in
+    let b = proj {b ; p} in
+    let res = ref 0 in
+    for i = hmin to hmax do
+      for j = vmin to vmax + 1 do
+	if (j < height) then
+	  (if (b.(j).(i)) then 
+	     for k = j + 1 to vmax + 1 do
+	       if k < height && not(b.(k).(i)) then res := !res + 1 done)
+      done
+    done;
+    !res
+ 
   let score (b: board) (p: pawn): score_t =
     (List.length (Board.full_lines (proj {b ; p} ))) * 100_000_000 
-    - (cover_holes b p) * 10 
+    - (cover_holes' b p) * 10 
     + (CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0) * 100_00 
     + (CellSet.fold (fun c n -> min n c.y) p.Pawn.cells max_int) * 100 
  							    
