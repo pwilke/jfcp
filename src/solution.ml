@@ -47,17 +47,24 @@ let replace_powers (pow: string list) (ol: order list) : string =
   let s = trivial_string_of_order_list ol in
   List.fold_left (fun acc p -> replace_power p acc) s pow
 
+let bool_of_exn f x : bool =
+  try ignore (f x); true with
+    _ -> false
+		 
 let contain_wop (path: order list): bool =
-  let s = trivial_string_of_order_list path in
-  Format.printf "%s@." s;
- let wops = ["ei!";"ia! ia!";"yuggoth"; "r'lyeh"] in
-  List.fold_left 
-    (fun b pow -> 
-     let pow_ord = order_list_of_string pow in
-     let pow_ord_triv = trivial_string_of_order_list pow_ord in
-     Format.printf "%s@." pow_ord_triv;
-     b || Str.string_match (Str.regexp pow_ord_triv) s 0) false wops
+  let res =
+    let s = trivial_string_of_order_list path in
+    let wops = ["ei!";"ia! ia!";"yuggoth"; "r'lyeh"] in
+    List.fold_left 
+      (fun b pow -> 
+       let pow_ord = order_list_of_string pow in
+       let pow_ord_triv = trivial_string_of_order_list pow_ord in
+       b || bool_of_exn (Str.search_forward (Str.regexp (Printf.sprintf ".*%s.*" pow_ord_triv)) s) 0
+      ) false wops
+  in
+  if res then Printf.printf "contain_wop; yeah !!!\n";
+  res
 
-let _ =
-  Printf.printf "%B\n" (contain_wop [ M W; M E; M SW; M W; M E; M SW; M W ])
+(* let _ = *)
+(*   Printf.printf "%B\n" (contain_wop [ M W; M E; M SW; M W; M E; M SW; M W ]) *)
 		     
