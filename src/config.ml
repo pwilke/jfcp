@@ -89,8 +89,6 @@ module Config = struct
       | (o, Some p)::r -> f r ((o,p.p)::acc1,acc2)
     in
     f olds ([],[])
-
-
 	     
   let not_colored (colored: pawn list) (p: pawn) : bool =
     not (List.exists (Pawn.equiv p) colored)

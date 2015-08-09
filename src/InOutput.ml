@@ -40,10 +40,10 @@ tag: string;
 solution: order list }
 
 let to_jason { pb_id; seed; tag; solution } =
-let s = Solution.replace_powers ["ei!";"ia! ia!";"yuggoth"; "r'lyeh"] solution in
-`O [("problemId", `Float (float pb_id)) ; ("seed", `Float (float seed))
-    (* ; ("tag", `String tag) *)
-    ; ("solution", `String s)]
+  let s = Solution.replace_powers ["ei!";"ia! ia!";"yuggoth"; "r'lyeh"] solution in
+  `O [("problemId", `Float (float pb_id)) ; ("seed", `Float (float seed))
+      (* ; ("tag", `String tag) *)
+      ; ("solution", `String s)]
 
 
 let pp_output fmt { pb_id; seed; tag; solution } =
