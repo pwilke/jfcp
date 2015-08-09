@@ -6,8 +6,6 @@ open Config
 open Orders
 open InOutput
 
- let _ = print_string (string_of_list_order (Solution.order_list_of_string "r'lyeh")) 
-
 (** This function computes the path for a round: given a board and a pawn about to fall, where do we lead it **)
 let round rnd pawns score (board, finished, curpath) = 
   if finished then (board,finished, curpath)
@@ -37,7 +35,7 @@ let round rnd pawns score (board, finished, curpath) =
 	  	   end
 	       end)
 	      (path,bestscore)
-              [ "ei!";"ia! ia!";"yuggoth";"cthulhu";"bigboote";"conway";"cocke";"backus";"hopcroft";"r'lyeh"]
+              [ "ei!"] (* ;"ia! ia!";"yuggoth";"cthulhu";"bigboote";"conway";"cocke";"backus";"hopcroft";"r'lyeh"] *)
 	  in
 	  if !verbose then
 	    begin

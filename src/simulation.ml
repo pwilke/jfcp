@@ -39,8 +39,8 @@ let rec do_it_safe (bs: PawnSet.t) (cfg: Config.t) : order list -> (Board.t * or
            (string_of_order order);
       begin match Config.update cfg order with
 	    | Some cfg' ->
+	       let bs = (PawnSet.add cfg.Config.p bs) in
 	       let pp = cfg'.Config.p in
-	       let bs = (PawnSet.add pp bs) in
 	       if PawnSet.mem pp bs then raise Unsafe
 	       else do_it_safe bs cfg' path
 	    | None -> Left(Config.proj cfg, path) , bs
