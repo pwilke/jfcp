@@ -1,5 +1,6 @@
 open Cell
 open Jfcp
+open Scoring 
 
 (* platō *)
 (* ligne × colonne *)
@@ -83,8 +84,11 @@ let format ~pivot fmt =
       if full then (n+1,n::acc) else (n+1, acc)) 
      (0,[]) b)
 
- let clean_end_of_round (b: t): unit =
+ let clean_end_of_round (b: t) (score: (int * int) ref) (size: int): unit =
    let l = List.rev (full_lines b) in
+   let ls = List.length l in
+   let (old, ls_old) = ! score in
+   score := (Scoring.move_score old size ls ls_old, ls);
    List.iter (fun n -> fall b n) l
 
 end
