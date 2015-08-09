@@ -209,6 +209,7 @@ let () =
   let simul : bool ref = ref false in
   let seed : int ref = ref 0 in
   let chemin : string ref = ref "" in
+  let score = ref 0 in
   Arg.(parse
 	 [
 	   "-f", String (fun s -> filename := s :: !filename),
@@ -241,7 +242,8 @@ let () =
 	begin let jas = play_game i in
 	      let oc = open_out_bin ("out/" ^ (string_of_int i.id)) in 
 	      Ezjsonm.to_channel oc jas;
-	      close_out oc
+	      close_out oc;
+	      Format.printf "%s@ %d" "Expected score:" !score
 	end)
 
      (!filename)
