@@ -88,7 +88,7 @@ let format ~pivot fmt =
    let l = List.rev (full_lines b) in
    let ls = List.length l in
    let (old, ls_old) = ! score in
-   score := (Scoring.move_score old size ls ls_old, ls);
+   score := (old + Scoring.move_score old size ls ls_old, ls);
    List.iter (fun n -> fall b n) l
 
 end
