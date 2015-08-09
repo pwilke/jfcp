@@ -15,7 +15,28 @@ let round rnd pawns score (board, finished, curpath) =
       let init = Config.init preinit in
       if Config.valid_config init then
 	begin
-	  let path = Config.walk init in
+	  let (path,bestscore) = Config.walk init in
+	  let (path,bestscore) =
+	    List.fold_left
+	      (fun (path,bestscore) elt -> 
+	       let prefix = Solution.order_list_of_string elt in
+	       begin
+		 try
+		   match Simulation.do_it_safe (PawnSet.empty) init prefix with
+		   | Left c -> (path,bestscore)
+		   | Right c ->
+		      let (path_aux,bestscore_aux) = Config.walk c in
+		      if bestscore_aux >= bestscore
+		      then (prefix@path_aux,bestscore_aux)
+		      else (path,bestscore)
+		 with Simulation.Unsafe -> begin
+		     Printf.eprintf "====>>!!@@ç_UNSAFE POW %s\n" elt
+		     ;(path,bestscore)
+		   end
+	       end)
+	      (path,bestscore)
+	      [ "ei!";"ia! ia!";"yuggoth";"cthulhu";"r'lyeh"]
+	  in
 	  if !verbose then
 	    begin
 	      let preb = Config.proj preinit in

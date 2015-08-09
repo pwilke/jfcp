@@ -46,11 +46,24 @@ module Pawn = struct
     Format.fprintf fmt "p[%a]{%a}@."
 		   pp_cell p.pivot
 		   (pp_list pp_cell ",") (CellSet.elements p.cells)
-		   
+
+  let compare p q : int =
+    match compare p.pivot q.pivot with
+    | 0 -> CellSet.compare p.cells q.cells
+    | n -> n
+
+  let equiv (p: t) (q: t) : bool =
+    compare p q = 0
+    (* p.pivot = q.pivot && CellSet.equal p.cells q.cells *)
+				       
+	     
 end
 module Uunit = Pawn
 type pawn = Pawn.t
 
+module PawnSet = Set.Make(Pawn)
+
+	      
 (* let _ = *)
 (*   Format.printf "%a@." Pawn.format (Pawn.move {cells = CellSet.empty; *)
 (* 					       pivot = { x = 0; y = 0 }} SE) *)

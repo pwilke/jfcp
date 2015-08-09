@@ -90,13 +90,13 @@ module Config = struct
     in
     f olds ([],[])
 
-  let equiv (p: pawn) (q: pawn) : bool =
-    p.Pawn.pivot = q.Pawn.pivot && CellSet.equal p.Pawn.cells q.Pawn.cells
+
 	     
   let not_colored (colored: pawn list) (p: pawn) : bool =
-    not (List.exists (equiv p) colored)
+    not (List.exists (Pawn.equiv p) colored)
+
 	     
-  let walk (c: t) : order list =
+  let walk (c: t) : order list * score_t =
     let b = c.b in
     let rec aux (cur: order list) (best: order list) (bestscore: score_t) (colored: pawn list) (pl: pawn list) : (order list * score_t * pawn list) =
       begin
@@ -128,8 +128,8 @@ module Config = struct
       end      
     in
     let (best, bestscore, colored) = aux [] [] min_int [] [c.p] in
-    List.rev best
- 
+    List.rev best, bestscore
+
 (** initialize the configuration by placing the pawn at the center of the top row, rounding toward the left **)
  let init (c: t): t =
    let (b, p) = (c.b, c.p) in

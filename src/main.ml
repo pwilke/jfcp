@@ -73,6 +73,7 @@ let chemin : string ref = ref "" in
 let score = ref (0, 0) in
 let viz = ref false in
 let show_sub = ref false in
+let time = ref "" in
 Arg.(parse
 	[
 	"-f", String (fun s -> filename := s :: !filename),
@@ -85,6 +86,7 @@ Arg.(parse
 	"-r", Set_int seed, "Seed to simulate on";
 	"-v", Set verbose, "Print traces of simulation";
 	"-V", Set viz, "Just print the initial board";
+	"-time", Set_string time, "Time of the solution to simulation";
 	"-submitted", Set show_sub, "Print submitted scores";
 	]
 	(ignore: string -> unit)
@@ -106,8 +108,13 @@ List.iter (fun s ->
     if !viz then begin Format.printf "%a@." (pp_input false) i; exit 0 end;
 
     if ! simul then
-    begin
-	Sim_trace.play_seed_simulate i !seed (Solution.order_list_of_string !chemin) score
+      begin
+
+	let c = if !chemin = ""
+		then Parse_result.extract_solution_from_time !time
+		else !chemin in 
+	
+      Sim_trace.play_seed_simulate i !seed (Solution.order_list_of_string c) score
     end
     else
       begin let jas = Play.play_game i score in
