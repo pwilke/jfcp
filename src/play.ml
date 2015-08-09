@@ -45,23 +45,26 @@ let round rnd pawns score (board, finished, curpath) =
 (** This function computes the series of commands for a whole game: iterates rounds over the list of available pawns **)
 
 let play_seed jas (i: input_t) seed score =
-	let rnd = Prng.make seed in
-	let board = Board.clone i.board in
-	let (_, _, chemin) =
-	  (* finished is a boolean that is set to true when a pawn cannot be placed in the grid (e.g. full grid). When it is set we stop iterating on following pawns. *)
-	  iter i.length
-	       (round rnd i.pawns score)  
-	       (board,false,[])
-	in
-	let out :output_t =
-	  {pb_id = i.id;
-	   seed = seed;
-	   tag = "sunday";
-	   solution = chemin }
-	in if !verbose then Format.printf "%a@." pp_output out;
-	   match jas with 
-	   | ` A j -> `A ((to_jason out)::j)
-	   | _     -> failwith "not jas" 
+  if !verbose then Printf.printf ">>>>>New seed!<<<<<<<\n\n" else ();
+  let temp = fst !score in
+  let rnd = Prng.make seed in
+  let board = Board.clone i.board in
+  let (_, _, chemin) =
+    (* finished is a boolean that is set to true when a pawn cannot be placed in the grid (e.g. full grid). When it is set we stop iterating on following pawns. *)
+    iter i.length
+	 (round rnd i.pawns score)  
+	 (board,false,[])
+  in
+  Format.printf "%s%d@,%d@." "Seed: " seed (fst !score - temp);
+  let out :output_t =
+    {pb_id = i.id;
+     seed = seed;
+     tag = "sunday";
+     solution = chemin }
+  in if !verbose then Format.printf "%a@." pp_output out;
+     match jas with 
+     | ` A j -> `A ((to_jason out)::j)
+     | _     -> failwith "not jas" 
 
 (** This function plays a full game over a board per seed provided in s **)
 let play_game i score =  
