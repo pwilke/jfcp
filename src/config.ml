@@ -149,17 +149,19 @@ module Config = struct
   let rec rep_try_walk_wops boardupperbound wops (c: t) (colored: PawnSet.t) : (t*PawnSet.t*order list) =
     match try_walk_wops wops c colored with
       (c,colored,path,false) -> (c,colored,path)
-    | (c',colored,path,true) ->
+    | (c',col,path,true) ->
        if pawn_not_below_line boardupperbound c'
        then 
-	 match rep_try_walk_wops boardupperbound wops c' colored with
+	 match rep_try_walk_wops boardupperbound wops c' col with
 	   (cc,col,ppath) -> (cc,col, path@ppath)
        else (c,colored,[])
 
 		
       
   let walk (c: t) (colored: PawnSet.t) : order list * score_t =
-    let (c,colored,curpath) = rep_try_walk_wops (Board.highest_not_empty_line c.b) (List.map fst power_phrases) c colored in
+    let (c,colored,curpath) =
+      rep_try_walk_wops (Board.highest_not_empty_line c.b)
+			(List.map fst power_phrases) c colored in
     let b = c.b in
     let rec aux (cur: order list) (best: order list) (bestscore: score_t) (colored: PawnSet.t) (pl: pawn list) : (order list * score_t * PawnSet.t) =
       begin
