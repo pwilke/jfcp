@@ -24,8 +24,6 @@ let rec doit (cfg: Config.t) : order list -> (Board.t * order list, Config.t) ei
       end
   end
 
-
-    
 exception Unsafe
 
 let rec do_it_safe (bs: PawnSet.t) (cfg: Config.t) : order list -> (Board.t * order list, Config.t) either * PawnSet.t =
