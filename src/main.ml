@@ -75,6 +75,7 @@ let viz = ref false in
 let show_sub = ref false in
 let time = ref "" in
 let outfile = ref "" in
+let out_best = ref false in
 Arg.(parse
 	[
 	"-f", String (fun s -> filename := s :: !filename),
@@ -89,11 +90,22 @@ Arg.(parse
 	"-V", Set viz, "Just print the initial board";
 	"-time", Set_string time, "Time of the solution to simulation";
 	"-submitted", Set show_sub, "Print submitted scores";
-	"-o", Set_string outfile, "Output file"
+	"-o", Set_string outfile, "Output file";
+	"-best", Set out_best, "Find best submissions"
 	]
 	(ignore: string -> unit)
 	"Prière de bien vouloir vous référer à la documentation associée. Merci."
 );
+
+if !out_best then begin
+    let jas = Parse_result.extract_best_solutions () in
+    let outfile = "best_soum" in
+    let oc = open_out_bin outfile in 
+    Ezjsonm.to_channel oc jas;
+    close_out oc;
+    Parse_result.show_best_scores ()
+  ; exit 0
+  end;
 
 if !show_sub then begin
     Parse_result.show_submitted_scores ()

@@ -7,3 +7,6 @@ pwilke:
 
 clean:
 	rm -rf _build
+
+archive:
+	tar cf jfcp.tar.gz src/*.ml src/*.mli Makefile problems/problem_*.json README

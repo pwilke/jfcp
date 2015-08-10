@@ -101,7 +101,9 @@ let play_seed jas (i: input_t) seed score =
     {pb_id = i.id;
      seed = seed;
      tag = "sunday";
-     solution = chemin }
+     solution = Solution.replace_powers
+		  (List.map fst power_phrases)
+		  chemin }
   in if !verbose then Format.printf "%a@." pp_output out;
      match jas with 
      | ` A j -> `A ((to_jason out)::j)

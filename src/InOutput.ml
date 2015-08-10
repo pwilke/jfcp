@@ -37,19 +37,19 @@ type output_t =
 { pb_id: int;
 seed: int;
 tag: string;
-solution: order list }
+solution: string }
 
 let to_jason { pb_id; seed; tag; solution } =
-  let s = Solution.replace_powers
-	    (List.map fst power_phrases)
-	    solution in
+  (* let s = Solution.replace_powers *)
+  (* 	    (List.map fst power_phrases) *)
+  (* 	    solution in *)
   `O [("problemId", `Float (float pb_id)) ; ("seed", `Float (float seed))
       (* ; ("tag", `String tag) *)
-      ; ("solution", `String s)]
+      ; ("solution", `String solution)]
 
 
 let pp_output fmt { pb_id; seed; tag; solution } =
 Format.fprintf fmt "id: %d; seed: %d; tag: %s; \n solution: %s\n"
 		pb_id seed tag
-		(string_of_list_order solution)
+		((* string_of_list_order  *)solution)
 
