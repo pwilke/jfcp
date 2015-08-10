@@ -43,7 +43,7 @@ module Config = struct
     let b = Board.clone c.b in
     CellSet.iter (fun cell -> Board.set b cell true) c.p.Pawn.cells;
     b 
-	 
+
 (** Updates a configuration after an order **) 
   let update (c: t) (o: order): t option =
     let np = 
@@ -64,7 +64,7 @@ module Config = struct
     let res = ref 0 in
     for i = hmin to hmax do
       if (vmax < height - 1) then
-	(if not(b.(vmax + 1).(i)) then res := !res + 1 else ())
+        (if not(Board.get b { x = i; y = vmax + i }) then res := !res + 1 else ())
     done;
     !res
  
@@ -79,9 +79,9 @@ module Config = struct
     for i = hmin to hmax do
       for j = vmin to vmax + 1 do
 	if (j < height) then
-	  (if (b.(j).(i)) then 
+          (if Board.get b { x = i; y = j } then 
 	     for k = j + 1 to vmax + 1 do
-	       if k < height && not(b.(k).(i)) then res := !res + 1 done)
+               if k < height && not(Board.get b { x = i; y = k }) then res := !res + 1 done)
       done
     done;
     !res
