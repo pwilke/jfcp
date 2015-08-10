@@ -16,26 +16,37 @@ let round rnd pawns score (board, finished, curpath) =
       if Config.valid_config init then
 	begin
 	  let (path,bestscore) = Config.walk init PawnSet.empty in
-	  let (path,bestscore) =
+	  let all_placed = List.fold_left (fun acc (_,b) -> acc && !b)
+					  true power_phrases in
+	  let (path,bestscore,_) =
+
+	    
 	    List.fold_left
-	      (fun (path,bestscore) elt ->
-	       let prefix = Solution.order_list_of_string elt in
-	       begin
-	  	 try
-	  	   match Simulation.do_it_safe (PawnSet.empty) init prefix with
-	  	   | Left c,_ -> (path,bestscore)
-	  	   | Right c, pset ->
-	  	      let (path_aux,bestscore_aux) = Config.walk c (PawnSet.remove (c.Config.p) pset) in
-	  	      if bestscore_aux >= bestscore
-		      then (prefix@path_aux,bestscore_aux)
-	  	      else (path,bestscore)
-	  	 with Simulation.Unsafe -> begin
-	  	     (* Printf.eprintf "====>>!!@@ç_UNSAFE POW %s\n" elt *)
-	  	    (* ; *)(path,bestscore)
-	  	   end
-	       end)
-	      (path,bestscore)
-              [ "ei!"] (* ;"ia! ia!";"yuggoth";"cthulhu";"bigboote";"conway";"cocke";"backus";"hopcroft";"r'lyeh"] *)
+
+	      (fun (path,bestscore,finished) (pow,bref) ->
+	       if finished
+	       then (path,bestscore,finished)
+	       else if not all_placed && ! bref
+	       then (path, bestscore, false)
+	       else begin
+		   let prefix = Solution.order_list_of_string pow in
+	  	   try
+	  	     match Simulation.do_it_safe (PawnSet.empty) init prefix with
+	  	     | Left c,_ ->
+			(path,bestscore,false)
+	  	     | Right c, pset ->
+	  		let (path_aux,bestscore_aux) =
+			  Config.walk c (PawnSet.remove (c.Config.p) pset) in
+
+	  		if bestscore_aux >= bestscore 
+			then (bref := true; (prefix@path_aux,bestscore_aux,true))
+	  		else (path,bestscore,false)
+	  	   with Simulation.Unsafe -> (path,bestscore,false)
+		 end)
+	      (path,bestscore, false)
+	      power_phrases
+
+
 	  in
 	  if !verbose then
 	    begin
@@ -74,6 +85,9 @@ let round rnd pawns score (board, finished, curpath) =
 
 let play_seed jas (i: input_t) seed score =
   if !verbose then Printf.printf ">>>>>New seed!<<<<<<<\n\n" else ();
+  (* Reset the state of each power phrase (already displayed or not). *)
+  (* tavu g fé 2 la doque lol (PW) *)
+  List.iter (fun (_,b) -> b := false) power_phrases;
   let temp = fst !score in
   let rnd = Prng.make seed in
   let board = Board.clone i.board in
