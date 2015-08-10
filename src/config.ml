@@ -126,24 +126,34 @@ module Config = struct
 	  then None
 	  else walk_ol c' ps r
 
-  let try_walk_wop wop (c: t) (colored: PawnSet.t) : (t*PawnSet.t*order list) =
+  let try_walk_wop wop (c: t) (colored: PawnSet.t) : (t*PawnSet.t*order list*bool) =
     let prefix = Solution.order_list_of_string wop in 
     match walk_ol c colored prefix with
-      Some (c,colored) -> (c,colored,prefix)
-    | None -> (c,colored,[])
+      Some (c,colored) -> (c,colored,prefix,true)
+    | None -> (c,colored,[],false)
 		       
 
-  let try_walk_wops wops (c: t) (colored: PawnSet.t) : (t*PawnSet.t*order list) =
+  let try_walk_wops wops (c: t) (colored: PawnSet.t) : (t*PawnSet.t*order list*bool) =
     List.fold_left
-      (fun (c, colored, path) wop ->
-       let (c, colored, p) = try_walk_wop wop c colored in
-       (c, colored, path @ p)
+      (fun (c, colored, path,succ) wop ->
+       let (c, colored, p, s) = try_walk_wop wop c colored in
+       (c, colored, path @ p, succ || s)
       )
-      (c,colored,[])
+      (c,colored,[], false)
       wops
+
+
+  let rec rep_try_walk_wops wops (c: t) (colored: PawnSet.t) : (t*PawnSet.t*order list) =
+    match try_walk_wops wops c colored with
+      (c,colored,path,false) -> (c,colored,path)
+    | (c,colored,path,true) ->
+       match rep_try_walk_wops wops c colored with
+	 (cc,col,ppath) -> (cc,col, path@ppath)
+
 		
+      
   let walk (c: t) (colored: PawnSet.t) : order list * score_t =
-    let (c,colored,curpath) = try_walk_wops (List.map fst power_phrases) c colored in
+    let (c,colored,curpath) = rep_try_walk_wops (List.map fst power_phrases) c colored in
     let b = c.b in
     let rec aux (cur: order list) (best: order list) (bestscore: score_t) (colored: PawnSet.t) (pl: pawn list) : (order list * score_t * PawnSet.t) =
       begin
