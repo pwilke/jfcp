@@ -111,7 +111,29 @@ module Config = struct
   let is_colored (colored: PawnSet.t) (p: pawn) : bool =
     PawnSet.mem p colored
 
+  (* walk_ol c colored ol tries to move as dictated by ol.
+   * returns None if move is invalid
+   * returns Some(c, col) if resulting config is c, and new set of colored col *)
+  let rec walk_ol (c: t) (colored: PawnSet.t) (ol: order list) : (t * PawnSet.t) option =
+    match ol with
+      [] -> Some (c, colored)
+    | o::r ->
+       match update c o with
+  	 None -> None
+       | Some c' ->
+	  let ps = PawnSet.add c.p colored in
+	  if PawnSet.mem c'.p ps
+	  then None
+	  else walk_ol c' ps r
+
+		
   let walk (c: t) (colored: PawnSet.t) : order list * score_t =
+    let (c,colored,curpath) =
+      let prefix = Solution.order_list_of_string "r'lyeh" in 
+      match walk_ol c colored prefix with
+	Some (c,colored) -> (c,colored,prefix)
+      | None -> (c,colored,[])
+    in
     let b = c.b in
     let rec aux (cur: order list) (best: order list) (bestscore: score_t) (colored: PawnSet.t) (pl: pawn list) : (order list * score_t * PawnSet.t) =
       begin
@@ -121,30 +143,32 @@ module Config = struct
 	   if debug then Format.printf "%a@\n%d." Pawn.format p (PawnSet.cardinal colored);
 	   if is_colored colored p then aux cur best bestscore colored r
 	   else 
-	   let colored = PawnSet.add p colored in
-	   let (sons_success,sons_failure) = compute_sons b p in
-	   let best, bestscore = 
-	     begin
-	       match sons_failure with
-	       | a::sf ->
-		  let s = score b p in
-		  if s >= bestscore
-		  then (a::cur,s)
-		  else (best,bestscore)
-	       | [] -> (best,bestscore)
-	     end
-	   in 
-	   let (ol,sc,col) = List.fold_left (fun (ol,sc,col) (o,p') ->
-					     aux (o::cur) ol sc col [p']
-					    )
-					    (best,bestscore,colored)
-					    sons_success in
-	   aux cur ol sc col r
+	     let colored = PawnSet.add p colored in
+	     let (sons_success,sons_failure) = compute_sons b p in
+	     let best, bestscore = 
+	       begin
+		 match sons_failure with
+		 | a::sf ->
+		    let s = score b p in
+		    if s >= bestscore
+		    then (a::cur,s)
+		    else (best,bestscore)
+		 | [] -> (best,bestscore)
+	       end
+	     in 
+	     let (ol,sc,col) = List.fold_left (fun (ol,sc,col) (o,p') ->
+					       aux (o::cur) ol sc col [p']
+					      )
+					      (best,bestscore,colored)
+					      sons_success in
+	     aux cur ol sc col r
       end      
     in
-    let (best, bestscore, colored) = aux [] [] min_int colored [c.p] in
+    let (best, bestscore, colored) = aux (List.rev curpath) [] min_int colored [c.p] in
     List.rev best, bestscore
 
+
+		     
 (** initialize the configuration by placing the pawn at the center of the top row, rounding toward the left **)
  let init (c: t): t =
    let (b, p) = (c.b, c.p) in
