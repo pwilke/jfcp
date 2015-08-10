@@ -13,5 +13,6 @@ module Board :
     val full_lines : t -> int list
     val clean_end_of_round : t -> (int * int) ref -> int -> unit
     val highest_not_empty_line : t -> int
+    val quasi_filled : t -> int list
   end
 type board = Board.t

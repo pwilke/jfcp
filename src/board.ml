@@ -98,6 +98,15 @@ let highest_not_empty_line (b: t) : int =
   height b
   with Hnel n -> n
 
+let how_many_holes (line: bool array) : int =
+  Array.fold_left (fun s b -> if b then s else s + 1) 0 line
+
+(* line numbers, sorted by increasing number of holes in this line *)
+let quasi_filled (b: t) : int list =
+  let x = Array.mapi (fun i line -> (i, how_many_holes line)) b in
+  Array.sort (fun (i, s) (i', s') -> compare s s') x;
+  Array.map fst x |> Array.to_list
+
 
  let clean_end_of_round (b: t) (score: (int * int) ref) (size: int): unit =
    let l = List.rev (full_lines b) in
