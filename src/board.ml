@@ -91,6 +91,8 @@ let format ~pivot fmt =
    score := (old + Scoring.move_score size ls ls_old, ls);
    List.iter (fun n -> fall b n) l
 
+ let highest_not_empty_line (b: t) : int = 0
+	     
 end
 module B = Board
 type board = B.t

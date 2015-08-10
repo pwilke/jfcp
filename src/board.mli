@@ -12,5 +12,6 @@ module Board :
       pivot:Cell.cell option -> Format.formatter -> t -> unit
     val full_lines : t -> int list
     val clean_end_of_round : t -> (int * int) ref -> int -> unit
+    val highest_not_empty_line : t -> int
   end
 type board = Board.t
