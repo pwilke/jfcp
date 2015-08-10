@@ -25,7 +25,7 @@ type ('a, 'b) either =
 | Right of 'b
 
 let power_phrases =
-  [ "yogsothoth" ; "ei!" ;"ia! ia!";"yuggoth";
+  ["cthulhu fhtagn!" ; "yogsothoth" ; "ei!" ;"ia! ia!";"yuggoth";
     (* "cthulhu";"bigboote";"conway"; *)
     (* "cocke";"backus";"hopcroft"; *)
     "r'lyeh"; "planet 10"] |>
