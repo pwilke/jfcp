@@ -76,13 +76,28 @@ let format ~pivot fmt =
     Format.fprintf fmt "|@\n"
   )
 
+(* are all cells of line equal to v ? *)
+let is_all_the_same (line: bool array) (v: bool) : bool =
+  try Array.iter (fun x -> if x <> v then raise Not_found) line; true
+  with Not_found -> false
+
 (** Compute the list of lines which are full inside a board. Could be optimized if needed by casting it over the configuration by projection and testing only for affected lines **)
  let full_lines (b: t): int list =
    snd (Array.fold_left 
      (fun (n,acc) line -> 
-      let full = Array.fold_left (fun acc bool -> acc && bool) true b.(n) in  
-      if full then (n+1,n::acc) else (n+1, acc)) 
+       let full = is_all_the_same line true in
+        if full then (n+1,n::acc) else (n+1, acc)) 
      (0,[]) b)
+
+exception Hnel of int
+
+let highest_not_empty_line (b: t) : int =
+  try Array.iteri (fun n line ->
+    if not(is_all_the_same line false)
+  then raise (Hnel n)) b;
+  height b
+  with Hnel n -> n
+
 
  let clean_end_of_round (b: t) (score: (int * int) ref) (size: int): unit =
    let l = List.rev (full_lines b) in
@@ -91,8 +106,6 @@ let format ~pivot fmt =
    score := (old + Scoring.move_score size ls ls_old, ls);
    List.iter (fun n -> fall b n) l
 
- let highest_not_empty_line (b: t) : int = 0
-	     
 end
 module B = Board
 type board = B.t
