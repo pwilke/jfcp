@@ -6,7 +6,10 @@ open Config
 open Orders
 open InOutput
 
-(** This function computes the path for a round: given a board and a pawn about to fall, where do we lead it **)
+(** This function computes the path for a round: given a board and a pawn about
+to fall, where do we lead it **)
+(* finished is a boolean that is set to true when a pawn cannot be placed in the
+grid (e.g. full grid). When it is set we stop iterating on following pawns. *)
 let round rnd pawns score (board, finished, curpath) = 
   if finished then (board,finished, curpath)
   else begin
@@ -19,10 +22,7 @@ let round rnd pawns score (board, finished, curpath) =
 	  let all_placed = List.fold_left (fun acc (_,b) -> acc && !b)
 					  true power_phrases in
 	  let (path,bestscore,_) =
-
-	    
 	    List.fold_left
-
 	      (fun (path,bestscore,finished) (pow,bref) ->
 	       if finished
 	       then (path,bestscore,finished)
@@ -37,7 +37,6 @@ let round rnd pawns score (board, finished, curpath) =
 	  	     | Right c, pset ->
 	  		let (path_aux,bestscore_aux) =
 			  Config.walk c (PawnSet.remove (c.Config.p) pset) in
-
 	  		if bestscore_aux >= bestscore 
 			then (bref := true; (prefix@path_aux,bestscore_aux,true))
 	  		else (path,bestscore,false)
@@ -45,8 +44,6 @@ let round rnd pawns score (board, finished, curpath) =
 		 end)
 	      (path,bestscore, false)
 	      power_phrases
-
-
 	  in
 	  if !verbose then
 	    begin
@@ -92,7 +89,7 @@ let play_seed jas (i: input_t) seed score =
   let rnd = Prng.make seed in
   let board = Board.clone i.board in
   let (_, _, chemin) =
-    (* finished is a boolean that is set to true when a pawn cannot be placed in the grid (e.g. full grid). When it is set we stop iterating on following pawns. *)
+
     iter i.length
 	 (round rnd i.pawns score)  
 	 (board,false,[])

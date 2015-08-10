@@ -26,9 +26,9 @@ type ('a, 'b) either =
 
 let power_phrases =
   [ "ei!" ;"ia! ia!";"yuggoth";
-		"cthulhu";"bigboote";"conway";
-		"cocke";"backus";"hopcroft";
-		"r'lyeh"] |>
+    "cthulhu";"bigboote";"conway";
+    "cocke";"backus";"hopcroft";
+    "r'lyeh"] |>
 
     (List.sort
 	      (fun a b -> compare (String.length b) (String.length a))
