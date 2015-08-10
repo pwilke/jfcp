@@ -25,14 +25,15 @@ type ('a, 'b) either =
 | Right of 'b
 
 let power_phrases =
-  [ "ei!" ;"ia! ia!";"yuggoth";
+  [ "yogsothoth" ; "ei!" ;"ia! ia!";"yuggoth";
     (* "cthulhu";"bigboote";"conway"; *)
     (* "cocke";"backus";"hopcroft"; *)
     "r'lyeh"; "planet 10"] |>
-
+ 
     (List.sort
-	      (fun a b -> compare (String.length b) (String.length a))
-	       ) |>
+  	      (fun a b -> compare (String.length b) (String.length a))
+  	       ) |>
     
     List.map (fun a -> (a,ref false))
 	   
+(*ei!, hopcroft *)
