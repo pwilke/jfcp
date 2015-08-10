@@ -74,6 +74,7 @@ let score = ref (0, 0) in
 let viz = ref false in
 let show_sub = ref false in
 let time = ref "" in
+let outfile = ref "" in
 Arg.(parse
 	[
 	"-f", String (fun s -> filename := s :: !filename),
@@ -88,6 +89,7 @@ Arg.(parse
 	"-V", Set viz, "Just print the initial board";
 	"-time", Set_string time, "Time of the solution to simulation";
 	"-submitted", Set show_sub, "Print submitted scores";
+	"-o", Set_string outfile, "Output file"
 	]
 	(ignore: string -> unit)
 	"Prière de bien vouloir vous référer à la documentation associée. Merci."
@@ -118,9 +120,12 @@ List.iter (fun s ->
     end
     else
       begin let jas = Play.play_game i score in
-	    let oc = open_out_bin ("out/" ^ (string_of_int i.id)
-				   (* ^ "_" ^ (string_of_int (fst !score / List.length i.seeds)) *)
-				  ) in 
+
+	    let outfile = if !outfile = ""
+			  then "out/" ^ (string_of_int i.id)
+			  else !outfile in
+	    
+	    let oc = open_out_bin outfile in 
 	    Ezjsonm.to_channel oc jas;
 	    close_out oc;
 	    Format.printf "Expected score for problem %d: %d@." i.id (fst !score / List.length i.seeds)
