@@ -104,7 +104,7 @@ let how_many_holes (line: bool array) : int =
 (* line numbers, sorted by increasing number of holes in this line *)
 let quasi_filled (b: t) : int list =
   let x = Array.mapi (fun i line -> (i, how_many_holes line)) b in
-  Array.sort (fun (i, s) (i', s') -> compare s s') x;
+  Array.sort (fun (i, s) (i', s') -> match compare s s' with 0 -> compare i' i | n -> n) x;
   Array.map fst x |> Array.to_list
 
 
