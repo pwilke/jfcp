@@ -10,4 +10,4 @@ clean:
 	rm -rf _build
 
 archive:
-	tar cf jfcp.tar.gz src/*.ml src/*.mli Makefile problems/problem_*.json README default.nix
+	tar czf jfcp.tar.gz src/*.ml src/*.mli Makefile problems/problem_*.json README default.nix _tags
