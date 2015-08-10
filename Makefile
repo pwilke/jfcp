@@ -1,6 +1,7 @@
 OCB=ocamlbuild -use-ocamlfind -cflag -g
 all:
 	$(OCB) main.native
+	cp -fL main.native play_icfp2015
 
 pwilke:
 	$(OCB) types.native
