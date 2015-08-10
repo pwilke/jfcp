@@ -1,0 +1,14 @@
+ICFP Contest 2015
+Submission of team Vezoul
+
+ph’nglui mglw’nafh Cthulhu R'lyeh wgah’nagl fhtagn
+
+Our program is written in OCaml (4.01.0). It has the following additional dependencies:
+
+ -  findlib (aka ocamlfind)
+ -  ezjsonm (and its dependencies)
+
+These OCaml libraries are available in several package repositories
+(notably nixpkgs and opam).
+
+It can be compiled by running `make`.
