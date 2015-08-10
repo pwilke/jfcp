@@ -72,9 +72,11 @@ let round rnd pawns score (board, finished, curpath) =
         |> failwith
     end
     in
+    let final_path =
+      List.rev_append (List.rev curpath) path in
 
-	  eb , false , curpath @ path
-	end
+          eb , false , final_path
+        end
       else (board,true,curpath)
     end
 
