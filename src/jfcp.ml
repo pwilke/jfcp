@@ -25,15 +25,17 @@ type ('a, 'b) either =
 | Right of 'b
 
 let power_phrases =
-  ["cthulhu fhtagn!" ; "yogsothoth" ; "ei!" ;"ia! ia!";"yuggoth";
-    (* "cthulhu";"bigboote";"conway"; *)
-    (* "cocke";"backus";"hopcroft"; *)
-    "r'lyeh"; "planet 10"] |>
+  ["cthugha", ref false] 
+
+  (* ["cthulhu fhtagn!" ; "yogsothoth" ; "ei!" ;"ia! ia!";"yuggoth"; *)
+  (*   "r'lyeh"; "planet 10"] |> *)
+  (*   (\* "cthulhu";"bigboote";"conway"; *\) *)
+  (*   (\* "cocke";"backus";"hopcroft"; *\) *)
  
-    (List.sort
-  	      (fun a b -> compare (String.length b) (String.length a))
-  	       ) |>
+  (*   (List.sort *)
+  (* 	      (fun a b -> compare (String.length b) (String.length a)) *)
+  (* 	       ) |> *)
     
-    List.map (fun a -> (a,ref false))
+  (*   List.map (fun a -> (a,ref false)) *)
 	   
 (*ei!, hopcroft *)

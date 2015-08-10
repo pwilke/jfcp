@@ -87,11 +87,14 @@ module Config = struct
  
   let score (b: board) (p: pawn): score_t =
     let projected = (proj {b ; p} ) in
-    (List.length (Board.full_lines projected)) * 100_000_000 
-    - (cover_holes' projected p) * 10 
-    + (CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0) * 100_00 
-    + (CellSet.fold (fun c n -> min n c.y) p.Pawn.cells max_int) * 100 
- 							    
+    let size = CellSet.cardinal p.Pawn.cells in
+      (List.length (Board.full_lines projected)) * 100_000_000 
+      - (cover_holes' projected p) * 10 
+      + (CellSet.fold (fun c n -> max n c.y) p.Pawn.cells 0) * 100_00 
+      + (CellSet.fold (fun c n -> min n c.y) p.Pawn.cells max_int) * 100 
+      + (if (size >= 3) then 0 else
+	  (if CellSet.exists (fun c -> List.hd (Board.quasi_filled b) = c.y) p.Pawn.cells then 1 else 0)) * 100_000
+						    
   let compute_sons (b: board) (p: pawn) : (order * pawn) list * order list =
     let olds = 
       (List.rev_map (fun order ->
