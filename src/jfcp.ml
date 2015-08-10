@@ -28,7 +28,7 @@ let power_phrases =
   [ "ei!" ;"ia! ia!";"yuggoth";
     (* "cthulhu";"bigboote";"conway"; *)
     (* "cocke";"backus";"hopcroft"; *)
-    "r'lyeh"] |>
+    "r'lyeh"; "planet 10"] |>
 
     (List.sort
 	      (fun a b -> compare (String.length b) (String.length a))
